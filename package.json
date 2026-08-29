@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "check:contrast": "node scripts/check-color-contrast.mjs"
+    "check:contrast": "node scripts/check-color-contrast.mjs",
+    "setup:remote": "bash scripts/setup-remote.sh",
+    "setup:login": "npx supabase login && npx netlify-cli login"
   },
   "dependencies": {
     "@fontsource/fraunces": "^5.3.0",

@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { whatsappSupportUrl } from "@/lib/support";
 
 // Red de seguridad accesible para cualquier error no controlado: en vez de
 // la pantalla de error genérica, un mensaje claro (WCAG 3.3.1) con una
@@ -18,6 +19,10 @@ export default function RouteError({
     console.error(error);
   }, [error]);
 
+  const supportMessage = `Hola, tengo un problema con Kinami: ${
+    error.message || "error inesperado"
+  }`;
+
   return (
     <div className="relative min-h-screen">
       <div className="absolute right-6 top-6 z-10">
@@ -31,9 +36,17 @@ export default function RouteError({
         <p role="alert" className="mt-2 text-text-secondary">
           {error.message || "Ha ocurrido un error inesperado. Puedes intentarlo de nuevo."}
         </p>
-        <Button className="mt-6" onClick={retry}>
-          Intentar de nuevo
-        </Button>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <Button onClick={retry}>Intentar de nuevo</Button>
+          <Button
+            variant="secondary"
+            onClick={() =>
+              window.open(whatsappSupportUrl(supportMessage), "_blank", "noopener,noreferrer")
+            }
+          >
+            Avisar por WhatsApp
+          </Button>
+        </div>
       </main>
     </div>
   );

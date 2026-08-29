@@ -1,0 +1,7 @@
+# Configuración mínima para usar la CLI de Supabase con el proyecto remoto.
+# Ver: https://supabase.com/docs/guides/cli
+
+project_id = "vpfmioaegwemgdxjlmlv"
+
+[db]
+major_version = 15

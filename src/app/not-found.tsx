@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LinkButton } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { whatsappSupportUrl } from "@/lib/support";
 
 export default function NotFound() {
   return (
@@ -25,6 +26,15 @@ export default function NotFound() {
           <Link href="/" className="underline-offset-2 hover:underline">
             Ir al inicio
           </Link>
+          {" · "}
+          <a
+            href={whatsappSupportUrl("Hola, me he encontrado una página rota en Kinami")}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline-offset-2 hover:underline"
+          >
+            Avisar por WhatsApp
+          </a>
         </p>
       </main>
     </div>

@@ -5,7 +5,8 @@ import { sendMessage, updateSwapStatus } from "@/lib/actions";
 import { Button } from "@/components/ui/button";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { StatusBadge } from "@/components/ui/status-badge";
-import type { Message, SwapRequest } from "@/lib/types";
+import { SwapAgreementSection } from "@/components/swap-agreement";
+import type { Message, SwapAgreement, SwapRequest } from "@/lib/types";
 
 export async function generateMetadata({
   params,
@@ -52,6 +53,12 @@ export default async function RequestDetailPage({
     .eq("swap_request_id", id)
     .order("created_at", { ascending: true });
 
+  const { data: agreement } = await supabase
+    .from("swap_agreements")
+    .select("*")
+    .eq("swap_request_id", id)
+    .maybeSingle<SwapAgreement>();
+
   return (
     <div className="mx-auto flex max-w-lg flex-col gap-6">
       <div>
@@ -94,6 +101,15 @@ export default async function RequestDetailPage({
             </form>
           )}
         </div>
+      )}
+
+      {request.status === "accepted" && (isOwner || isRequester) && (
+        <SwapAgreementSection
+          swapRequestId={request.id}
+          isOwner={isOwner}
+          isRequester={isRequester}
+          agreement={agreement}
+        />
       )}
 
       <section aria-labelledby="messages-heading" className="flex flex-col gap-3">

@@ -59,6 +59,14 @@ export type SwapRequest = {
   profiles?: Profile;
 };
 
+export type SwapAgreement = {
+  swap_request_id: string;
+  house_rules: string | null;
+  owner_accepted_at: string | null;
+  requester_accepted_at: string | null;
+  updated_at: string;
+};
+
 export type Message = {
   id: string;
   swap_request_id: string;

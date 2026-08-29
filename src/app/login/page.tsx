@@ -8,7 +8,13 @@ export const metadata: Metadata = {
   title: "Iniciar sesión",
 };
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ deleted?: string }>;
+}) {
+  const { deleted } = await searchParams;
+
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-16">
       <div className="absolute right-6 top-6 z-10">
@@ -31,6 +37,16 @@ export default function LoginPage() {
           <LogoMark className="h-7 w-7" />
           <span className="font-display text-2xl font-semibold">Kinami</span>
         </Link>
+
+        {deleted && (
+          <div
+            role="status"
+            className="mb-4 rounded-lg border border-accent-100 bg-accent-50 p-4 text-accent-800"
+          >
+            Tu cuenta y tus datos se han borrado. Gracias por haber pasado por Kinami.
+          </div>
+        )}
+
         <div className="rounded-2xl border border-border-subtle bg-surface p-8 shadow-sm">
           <h1 className="sr-only">Iniciar sesión</h1>
           <p className="mb-6 text-text-secondary">Entra en tu rueda de confianza.</p>

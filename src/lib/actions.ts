@@ -19,6 +19,13 @@ async function requireUser() {
 // Traduce los mensajes de error técnicos de Postgres/Supabase a algo que
 // una persona pueda entender y corregir (WCAG 3.3.1 Identificación de errores).
 function friendlyError(message: string): string {
+  const lower = message.toLowerCase();
+  if (lower.includes("delete_own_account")) {
+    return "Falta la migración de borrado de cuenta en Supabase. Ejecuta supabase/migrations/002_borrar_cuenta.sql en el SQL Editor.";
+  }
+  if (lower.includes("swap_agreements")) {
+    return "Falta la migración de acuerdos de intercambio en Supabase. Ejecuta supabase/migrations/003_acuerdo_intercambio.sql en el SQL Editor.";
+  }
   if (message.toLowerCase().includes("invite")) {
     return "Ese código de invitación no es válido. Revisa que lo hayas copiado bien.";
   }
@@ -160,6 +167,80 @@ export async function updateSwapStatus(formData: FormData) {
 
   revalidatePath(`/requests/${id}`);
   revalidatePath("/requests");
+}
+
+export async function deleteAccount(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { supabase } = await requireUser();
+  const confirmation = String(formData.get("confirmation") ?? "");
+
+  if (confirmation !== "BORRAR") {
+    return { error: 'Escribe "BORRAR" para confirmar. No se ha borrado nada.' };
+  }
+
+  const { error } = await supabase.rpc("delete_own_account");
+  if (error) return { error: friendlyError(error.message) };
+
+  await supabase.auth.signOut();
+  redirect("/login?deleted=1");
+}
+
+export async function saveHouseRules(formData: FormData) {
+  const { supabase, user } = await requireUser();
+  const swapRequestId = String(formData.get("swap_request_id"));
+  const houseRules = String(formData.get("house_rules") ?? "").trim();
+
+  const { data: request } = await supabase
+    .from("swap_requests")
+    .select("homes(owner_id)")
+    .eq("id", swapRequestId)
+    .maybeSingle<{ homes: { owner_id: string } | null }>();
+
+  if (!request || request.homes?.owner_id !== user.id) {
+    throw new Error("No tienes permiso para hacer esto.");
+  }
+
+  const { error } = await supabase.from("swap_agreements").upsert({
+    swap_request_id: swapRequestId,
+    house_rules: houseRules || null,
+    updated_at: new Date().toISOString(),
+  });
+
+  if (error) throw new Error(friendlyError(error.message));
+
+  revalidatePath(`/requests/${swapRequestId}`);
+}
+
+export async function confirmAgreement(formData: FormData) {
+  const { supabase, user } = await requireUser();
+  const swapRequestId = String(formData.get("swap_request_id"));
+  const role = String(formData.get("role"));
+
+  const { data: request } = await supabase
+    .from("swap_requests")
+    .select("requester_id, homes(owner_id)")
+    .eq("id", swapRequestId)
+    .maybeSingle<{ requester_id: string; homes: { owner_id: string } | null }>();
+
+  if (!request) throw new Error("Solicitud no encontrada.");
+
+  const isOwner = request.homes?.owner_id === user.id;
+  const isRequester = request.requester_id === user.id;
+  if ((role === "owner" && !isOwner) || (role === "requester" && !isRequester)) {
+    throw new Error("No tienes permiso para hacer esto.");
+  }
+
+  const field = role === "owner" ? "owner_accepted_at" : "requester_accepted_at";
+  const { error } = await supabase.from("swap_agreements").upsert({
+    swap_request_id: swapRequestId,
+    [field]: new Date().toISOString(),
+  });
+
+  if (error) throw new Error(friendlyError(error.message));
+
+  revalidatePath(`/requests/${swapRequestId}`);
 }
 
 export async function sendMessage(formData: FormData) {

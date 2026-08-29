@@ -18,14 +18,29 @@ export function configuredSiteUrl() {
   return process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "";
 }
 
-/** Origen para magic links: localhost en desarrollo, kinami.app en producción. */
+/** Origen para magic links: usa el host actual salvo en localhost (dev). */
 export function authRedirectOrigin() {
-  if (typeof window !== "undefined") {
-    if (isLocalHost(window.location.hostname)) {
-      return window.location.origin;
+  if (typeof window === "undefined") {
+    return configuredSiteUrl();
+  }
+
+  const { origin, hostname } = window.location;
+  if (isLocalHost(hostname)) {
+    return origin;
+  }
+
+  const siteUrl = configuredSiteUrl();
+  if (siteUrl) {
+    try {
+      if (new URL(siteUrl).hostname === hostname) {
+        return siteUrl;
+      }
+    } catch {
+      // URL de sitio mal configurada; usar el origen actual.
     }
   }
-  return configuredSiteUrl() || (typeof window !== "undefined" ? window.location.origin : "");
+
+  return origin;
 }
 
 /** Origen público: en producción siempre https, nunca el http interno del proxy. */

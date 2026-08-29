@@ -2,17 +2,11 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { loginAuthErrorMessage } from "@/lib/auth-errors";
 import { authRedirectOrigin } from "@/lib/https";
+import { whatsappSupportUrl } from "@/lib/support";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
-function loginErrorMessage(message?: string) {
-  const detail = message?.trim();
-  if (!detail) {
-    return "No hemos podido enviar el enlace. Comprueba el email e inténtalo de nuevo.";
-  }
-  return `No hemos podido enviar el enlace. ${detail}`;
-}
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
@@ -29,24 +23,36 @@ export function LoginForm() {
     if (!supabaseUrl || supabaseUrl.includes("TU-PROYECTO")) {
       setLoading(false);
       setError(
-        loginErrorMessage(
+        loginAuthErrorMessage(
           "Falta la Project URL de Supabase (https://xxxx.supabase.co) en .env.local."
         )
       );
       return;
     }
 
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+    if (!supabaseKey || supabaseKey.includes("tu-clave")) {
+      setLoading(false);
+      setError(
+        loginAuthErrorMessage(
+          "Falta la clave publishable de Supabase en las variables de entorno."
+        )
+      );
+      return;
+    }
+
+    const redirectTo = `${authRedirectOrigin()}/auth/callback`;
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${authRedirectOrigin()}/auth/callback`,
+        emailRedirectTo: redirectTo,
       },
     });
 
     setLoading(false);
     if (error) {
-      setError(loginErrorMessage(error.message));
+      setError(loginAuthErrorMessage(error.message, redirectTo));
     } else {
       setSent(true);
     }
@@ -80,6 +86,22 @@ export function LoginForm() {
           <Button type="submit" disabled={loading} aria-busy={loading}>
             {loading ? "Enviando…" : "Enviarme el enlace de acceso"}
           </Button>
+
+          {error && (
+            <p className="text-sm text-text-secondary">
+              ¿Sigue sin funcionar?{" "}
+              <a
+                href={whatsappSupportUrl(
+                  `Hola, no me llega el enlace de acceso a Kinami (${email})`
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-accent-700 underline-offset-2 hover:underline"
+              >
+                Avisa por WhatsApp
+              </a>
+            </p>
+          )}
         </form>
       )}
     </>
