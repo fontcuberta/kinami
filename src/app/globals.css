@@ -1,0 +1,142 @@
+@import "tailwindcss";
+
+/* Tipografía autoalojada (sin dependencias de red en tiempo de ejecución) */
+@import "@fontsource/public-sans/400.css";
+@import "@fontsource/public-sans/500.css";
+@import "@fontsource/public-sans/600.css";
+@import "@fontsource/public-sans/700.css";
+@import "@fontsource/fraunces/500.css";
+@import "@fontsource/fraunces/600.css";
+@import "@fontsource/fraunces/700.css";
+
+/* ---------------------------------------------------------------------
+   Tokens de diseño. Toda la paleta está verificada contra WCAG 2.1 AA
+   (contraste ≥4.5:1 para texto normal, ≥3:1 para componentes/gráficos).
+   Ver contrast-check.mjs para la comprobación programática.
+------------------------------------------------------------------------ */
+:root {
+  /* superficies */
+  --color-bg: #f7f6f3;
+  --color-surface: #ffffff;
+
+  /* texto */
+  --color-text: #211d19;
+  --color-text-secondary: #57534a;
+  --color-text-disabled: #8c8478;
+
+  /* bordes: "subtle" es decorativo; "strong" cumple 3:1 para límites
+     de componentes interactivos (inputs, botones con borde) */
+  --color-border-subtle: #e5e1d8;
+  --color-border-strong: #8c8478;
+
+  /* marca: terracota, verificado 5.5:1 (normal) y 8.3:1 (hover) sobre blanco */
+  --color-accent-50: #fff3ec;
+  --color-accent-100: #ffe1cc;
+  --color-accent-700: #b8410c;
+  --color-accent-800: #8a310a;
+
+  /* estado — deliberadamente distintos del color de marca, nunca solo color */
+  --color-success-50: #f0fdf4;
+  --color-success-700: #15803d;
+  --color-success-800: #166534;
+
+  --color-danger-50: #fef2f2;
+  --color-danger-700: #b91c1c;
+  --color-danger-800: #991b1b;
+
+  --color-neutral-100: #f1efea;
+  --color-neutral-700: #3f3a34;
+
+  /* foco: azul universal, con halo de dos anillos para 3:1 sobre
+     cualquier fondo (claro, oscuro o de color de marca) */
+  --color-focus: #1d4ed8;
+}
+
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-text: var(--color-text);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-disabled: var(--color-text-disabled);
+  --color-border-subtle: var(--color-border-subtle);
+  --color-border-strong: var(--color-border-strong);
+  --color-accent-50: var(--color-accent-50);
+  --color-accent-100: var(--color-accent-100);
+  --color-accent-700: var(--color-accent-700);
+  --color-accent-800: var(--color-accent-800);
+  --color-success-50: var(--color-success-50);
+  --color-success-700: var(--color-success-700);
+  --color-success-800: var(--color-success-800);
+  --color-danger-50: var(--color-danger-50);
+  --color-danger-700: var(--color-danger-700);
+  --color-danger-800: var(--color-danger-800);
+  --color-neutral-100: var(--color-neutral-100);
+  --color-neutral-700: var(--color-neutral-700);
+  --color-focus: var(--color-focus);
+
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-sans: "Public Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+/* Foco visible en TODA la app: halo de dos anillos (blanco + azul) que
+   garantiza ≥3:1 de contraste se apoye el elemento sobre el fondo que sea
+   — incluido un botón del color de marca. Nunca se elimina el outline sin
+   sustituirlo (WCAG 2.4.7 / 2.4.11). */
+:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--color-surface),
+    0 0 0 4px var(--color-focus);
+  border-radius: 4px;
+}
+
+/* Enlace "saltar al contenido" (WCAG 2.4.1 Bypass Blocks): invisible
+   hasta que recibe el foco por teclado. */
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -3rem;
+  z-index: 50;
+  background: var(--color-text);
+  color: var(--color-surface);
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: top 0.15s ease;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+::selection {
+  background: var(--color-accent-100);
+  color: var(--color-text);
+}
