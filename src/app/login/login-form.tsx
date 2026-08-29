@@ -5,6 +5,18 @@ import { createClient } from "@/lib/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
+function publicSiteOrigin() {
+  const { protocol, host, hostname } = window.location;
+  if (
+    protocol === "http:" &&
+    hostname !== "localhost" &&
+    hostname !== "127.0.0.1"
+  ) {
+    return `https://${host}`;
+  }
+  return window.location.origin;
+}
+
 export function LoginForm() {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
@@ -20,7 +32,7 @@ export function LoginForm() {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: `${publicSiteOrigin()}/auth/callback`,
       },
     });
 
