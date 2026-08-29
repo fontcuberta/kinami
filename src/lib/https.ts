@@ -14,6 +14,20 @@ export function requestIsHttps(headers: Headers, url: URL) {
   return proto === "https";
 }
 
+export function configuredSiteUrl() {
+  return process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "";
+}
+
+/** Origen para magic links: localhost en desarrollo, kinami.app en producción. */
+export function authRedirectOrigin() {
+  if (typeof window !== "undefined") {
+    if (isLocalHost(window.location.hostname)) {
+      return window.location.origin;
+    }
+  }
+  return configuredSiteUrl() || (typeof window !== "undefined" ? window.location.origin : "");
+}
+
 /** Origen público: en producción siempre https, nunca el http interno del proxy. */
 export function publicOrigin(request: Request) {
   const url = new URL(request.url);
@@ -22,7 +36,15 @@ export function publicOrigin(request: Request) {
     request.headers.get("host") ||
     url.host;
 
-  if (!isLocalHost(host) && process.env.NODE_ENV !== "development") {
+  if (isLocalHost(host)) {
+    const proto = requestIsHttps(request.headers, url) ? "https" : "http";
+    return `${proto}://${host}`;
+  }
+
+  const siteUrl = configuredSiteUrl();
+  if (siteUrl) return siteUrl;
+
+  if (process.env.NODE_ENV !== "development") {
     return `https://${host}`;
   }
 

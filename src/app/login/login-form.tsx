@@ -2,19 +2,16 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { authRedirectOrigin } from "@/lib/https";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-function publicSiteOrigin() {
-  const { protocol, host, hostname } = window.location;
-  if (
-    protocol === "http:" &&
-    hostname !== "localhost" &&
-    hostname !== "127.0.0.1"
-  ) {
-    return `https://${host}`;
+function loginErrorMessage(message?: string) {
+  const detail = message?.trim();
+  if (!detail) {
+    return "No hemos podido enviar el enlace. Comprueba el email e inténtalo de nuevo.";
   }
-  return window.location.origin;
+  return `No hemos podido enviar el enlace. ${detail}`;
 }
 
 export function LoginForm() {
@@ -28,17 +25,28 @@ export function LoginForm() {
     setLoading(true);
     setError(null);
 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+    if (!supabaseUrl || supabaseUrl.includes("TU-PROYECTO")) {
+      setLoading(false);
+      setError(
+        loginErrorMessage(
+          "Falta la Project URL de Supabase (https://xxxx.supabase.co) en .env.local."
+        )
+      );
+      return;
+    }
+
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${publicSiteOrigin()}/auth/callback`,
+        emailRedirectTo: `${authRedirectOrigin()}/auth/callback`,
       },
     });
 
     setLoading(false);
     if (error) {
-      setError("No hemos podido enviar el enlace. Comprueba el email e inténtalo de nuevo.");
+      setError(loginErrorMessage(error.message));
     } else {
       setSent(true);
     }
