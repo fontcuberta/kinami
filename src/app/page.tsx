@@ -37,10 +37,6 @@ export default async function Home() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <a href="#main-content" className="skip-link">
-        Saltar al contenido principal
-      </a>
-
       <header className="border-b border-border-subtle">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
           <div className="flex items-center gap-2 text-accent-700">

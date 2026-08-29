@@ -97,6 +97,37 @@
   }
 }
 
+/* Preferencia explícita: modo claro (gana sobre sistema en oscuro) */
+:root[data-theme="light"] {
+  --color-bg: #f7f6f3;
+  --color-surface: #ffffff;
+
+  --color-text: #1b2130;
+  --color-text-secondary: #545b70;
+  --color-text-disabled: #8b90a0;
+
+  --color-border-subtle: #e3e1dc;
+  --color-border-strong: #767c8c;
+
+  --color-accent-50: #eaf1fd;
+  --color-accent-100: #cfe0fa;
+  --color-accent-700: #2955a6;
+  --color-accent-800: #1e4483;
+
+  --color-success-50: #f0fdf4;
+  --color-success-700: #15803d;
+  --color-success-800: #166534;
+
+  --color-danger-50: #fef2f2;
+  --color-danger-700: #b91c1c;
+  --color-danger-800: #991b1b;
+
+  --color-neutral-100: #eff1f5;
+  --color-neutral-700: #3a3f4d;
+
+  --color-focus: #1d4ed8;
+}
+
 /* Preferencia explícita guardada por el usuario (ThemeToggle), gana
    siempre sobre el sistema */
 :root[data-theme="dark"] {
@@ -173,6 +204,14 @@
 html {
   scroll-behavior: smooth;
   color-scheme: light dark;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 @media (prefers-reduced-motion: reduce) {
