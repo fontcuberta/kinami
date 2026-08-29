@@ -7,9 +7,9 @@ const base =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-base font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60";
 
 const variants: Record<Variant, string> = {
-  primary: "bg-accent-700 text-white hover:bg-accent-800",
+  primary: "bg-brand-fill text-white hover:bg-brand-fill-hover",
   secondary: "border border-border-strong bg-surface text-text hover:bg-neutral-100",
-  danger: "bg-danger-700 text-white hover:bg-danger-800",
+  danger: "bg-danger-fill text-white hover:bg-danger-fill-hover",
   ghost: "text-text-secondary hover:bg-neutral-100 hover:text-text",
 };
 

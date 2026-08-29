@@ -9,10 +9,15 @@
 @import "@fontsource/fraunces/600.css";
 @import "@fontsource/fraunces/700.css";
 
+/* Activa el modo oscuro con el atributo data-theme="dark" en <html>,
+   además del sistema (prefers-color-scheme) cuando no hay preferencia
+   guardada. Ver ThemeToggle e inline-theme-script en layout.tsx. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 /* ---------------------------------------------------------------------
-   Tokens de diseño. Toda la paleta está verificada contra WCAG 2.1 AA
-   (contraste ≥4.5:1 para texto normal, ≥3:1 para componentes/gráficos).
-   Ver contrast-check.mjs para la comprobación programática.
+   Tokens de diseño. Toda la paleta (claro y oscuro) está verificada
+   contra WCAG 2.1 AA (contraste >=4.5:1 texto normal, >=3:1 componentes
+   no textuales). Ver scripts/check-color-contrast.mjs.
 ------------------------------------------------------------------------ */
 :root {
   /* superficies */
@@ -20,20 +25,28 @@
   --color-surface: #ffffff;
 
   /* texto */
-  --color-text: #211d19;
-  --color-text-secondary: #57534a;
-  --color-text-disabled: #8c8478;
+  --color-text: #1b2130;
+  --color-text-secondary: #545b70;
+  --color-text-disabled: #8b90a0;
 
   /* bordes: "subtle" es decorativo; "strong" cumple 3:1 para límites
      de componentes interactivos (inputs, botones con borde) */
-  --color-border-subtle: #e5e1d8;
-  --color-border-strong: #8c8478;
+  --color-border-subtle: #e3e1dc;
+  --color-border-strong: #767c8c;
 
-  /* marca: terracota, verificado 5.5:1 (normal) y 8.3:1 (hover) sobre blanco */
-  --color-accent-50: #fff3ec;
-  --color-accent-100: #ffe1cc;
-  --color-accent-700: #b8410c;
-  --color-accent-800: #8a310a;
+  /* marca: azul cálido, verificado como texto/icono/borde sobre fondo
+     y superficie claros */
+  --color-accent-50: #eaf1fd;
+  --color-accent-100: #cfe0fa;
+  --color-accent-700: #2955a6;
+  --color-accent-800: #1e4483;
+
+  /* relleno sólido de botones: fijo entre temas (el contraste del texto
+     blanco sobre el botón no depende del tema de la página) */
+  --color-brand-fill: #2955a6;
+  --color-brand-fill-hover: #1e4483;
+  --color-danger-fill: #b91c1c;
+  --color-danger-fill-hover: #991b1b;
 
   /* estado — deliberadamente distintos del color de marca, nunca solo color */
   --color-success-50: #f0fdf4;
@@ -44,12 +57,76 @@
   --color-danger-700: #b91c1c;
   --color-danger-800: #991b1b;
 
-  --color-neutral-100: #f1efea;
-  --color-neutral-700: #3f3a34;
+  --color-neutral-100: #eff1f5;
+  --color-neutral-700: #3a3f4d;
 
-  /* foco: azul universal, con halo de dos anillos para 3:1 sobre
-     cualquier fondo (claro, oscuro o de color de marca) */
+  /* foco: azul vivo con halo de dos anillos para 3:1 sobre cualquier fondo */
   --color-focus: #1d4ed8;
+}
+
+/* Sistema operativo en oscuro y sin preferencia explícita guardada */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg: #10141f;
+    --color-surface: #182036;
+
+    --color-text: #eef0f6;
+    --color-text-secondary: #a9afc2;
+    --color-text-disabled: #6b7184;
+
+    --color-border-subtle: #232b42;
+    --color-border-strong: #6e77a6;
+
+    --color-accent-50: #16223d;
+    --color-accent-100: #1c2c4d;
+    --color-accent-700: #8fb4f5;
+    --color-accent-800: #b7cff9;
+
+    --color-success-50: #0f2a1b;
+    --color-success-700: #4ade80;
+    --color-success-800: #7fe0a3;
+
+    --color-danger-50: #34161a;
+    --color-danger-700: #fca5a5;
+    --color-danger-800: #ffd1d1;
+
+    --color-neutral-100: #202840;
+    --color-neutral-700: #c7ccda;
+
+    --color-focus: #60a5fa;
+  }
+}
+
+/* Preferencia explícita guardada por el usuario (ThemeToggle), gana
+   siempre sobre el sistema */
+:root[data-theme="dark"] {
+  --color-bg: #10141f;
+  --color-surface: #182036;
+
+  --color-text: #eef0f6;
+  --color-text-secondary: #a9afc2;
+  --color-text-disabled: #6b7184;
+
+  --color-border-subtle: #232b42;
+  --color-border-strong: #6e77a6;
+
+  --color-accent-50: #16223d;
+  --color-accent-100: #1c2c4d;
+  --color-accent-700: #8fb4f5;
+  --color-accent-800: #b7cff9;
+
+  --color-success-50: #0f2a1b;
+  --color-success-700: #4ade80;
+  --color-success-800: #7fe0a3;
+
+  --color-danger-50: #34161a;
+  --color-danger-700: #fca5a5;
+  --color-danger-800: #ffd1d1;
+
+  --color-neutral-100: #202840;
+  --color-neutral-700: #c7ccda;
+
+  --color-focus: #60a5fa;
 }
 
 @theme inline {
@@ -64,6 +141,10 @@
   --color-accent-100: var(--color-accent-100);
   --color-accent-700: var(--color-accent-700);
   --color-accent-800: var(--color-accent-800);
+  --color-brand-fill: var(--color-brand-fill);
+  --color-brand-fill-hover: var(--color-brand-fill-hover);
+  --color-danger-fill: var(--color-danger-fill);
+  --color-danger-fill-hover: var(--color-danger-fill-hover);
   --color-success-50: var(--color-success-50);
   --color-success-700: var(--color-success-700);
   --color-success-800: var(--color-success-800);
@@ -91,6 +172,7 @@
 
 html {
   scroll-behavior: smooth;
+  color-scheme: light dark;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -105,9 +187,9 @@ body {
   font-family: var(--font-sans);
 }
 
-/* Foco visible en TODA la app: halo de dos anillos (blanco + azul) que
-   garantiza ≥3:1 de contraste se apoye el elemento sobre el fondo que sea
-   — incluido un botón del color de marca. Nunca se elimina el outline sin
+/* Foco visible en TODA la app: halo de dos anillos (superficie + azul) que
+   garantiza >=3:1 de contraste sea cual sea el fondo, incluido un botón
+   del color de marca o el fondo oscuro. Nunca se elimina el outline sin
    sustituirlo (WCAG 2.4.7 / 2.4.11). */
 :focus-visible {
   outline: none;
@@ -139,4 +221,31 @@ body {
 ::selection {
   background: var(--color-accent-100);
   color: var(--color-text);
+}
+
+/* Fondo animado decorativo del hero: manchas de azul en movimiento lento,
+   puramente ornamental (aria-hidden). Se congela con prefers-reduced-motion
+   gracias a la regla global de arriba. */
+@keyframes drift-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(4%, 6%) scale(1.08); }
+}
+@keyframes drift-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-5%, -4%) scale(1.05); }
+}
+
+.animated-blob-a {
+  animation: drift-a 18s ease-in-out infinite;
+}
+.animated-blob-b {
+  animation: drift-b 22s ease-in-out infinite;
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
 }

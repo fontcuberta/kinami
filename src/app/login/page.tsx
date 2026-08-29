@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { LoginForm } from "./login-form";
+import { LogoMark } from "@/components/ui/logo-mark";
 
 export const metadata: Metadata = {
   title: "Iniciar sesión",
@@ -7,10 +9,28 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6">
-      <h1 className="mb-1 font-display text-4xl font-semibold text-accent-700">Kinami</h1>
-      <p className="mb-8 text-text-secondary">Entra en tu rueda de confianza.</p>
-      <LoginForm />
-    </main>
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-16">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div
+          className="animated-blob-a absolute -left-32 -top-24 h-96 w-96 rounded-full opacity-60 blur-3xl"
+          style={{ background: "radial-gradient(circle, var(--color-accent-100), transparent 70%)" }}
+        />
+        <div
+          className="animated-blob-b absolute -right-24 bottom-0 h-96 w-96 rounded-full opacity-50 blur-3xl"
+          style={{ background: "radial-gradient(circle, var(--color-accent-50), transparent 70%)" }}
+        />
+      </div>
+
+      <main id="main-content" className="w-full max-w-sm">
+        <Link href="/" className="mb-6 flex items-center gap-2 text-accent-700">
+          <LogoMark className="h-7 w-7" />
+          <span className="font-display text-2xl font-semibold">Kinami</span>
+        </Link>
+        <div className="rounded-2xl border border-border-subtle bg-surface p-8 shadow-sm">
+          <p className="mb-6 text-text-secondary">Entra en tu rueda de confianza.</p>
+          <LoginForm />
+        </div>
+      </main>
+    </div>
   );
 }
