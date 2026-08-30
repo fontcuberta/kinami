@@ -1,11 +1,15 @@
 "use server";
 
 import { randomUUID } from "crypto";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { loginAuthErrorMessage } from "@/lib/auth-errors";
+import { authRedirectOriginFromHeaders } from "@/lib/https";
 import { createClient } from "@/lib/supabase/server";
 
 export type ActionState = { error: string } | null;
+export type MagicLinkState = { error: string; email: string } | { sent: true; email: string } | null;
 
 async function requireUser() {
   const supabase = await createClient();
@@ -36,6 +40,50 @@ function friendlyError(message: string): string {
     return "No tienes permiso para hacer esto.";
   }
   return "Algo ha salido mal. Inténtalo de nuevo en unos segundos.";
+}
+
+export async function requestMagicLink(
+  _prevState: MagicLinkState,
+  formData: FormData
+): Promise<MagicLinkState> {
+  const email = String(formData.get("email") ?? "").trim();
+  if (!email) {
+    return { error: "Escribe tu correo electrónico.", email: "" };
+  }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  if (!supabaseUrl || supabaseUrl.includes("TU-PROYECTO")) {
+    return {
+      error: loginAuthErrorMessage(
+        "Falta la Project URL de Supabase (https://xxxx.supabase.co) en las variables de entorno."
+      ),
+      email,
+    };
+  }
+
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+  if (!supabaseKey || supabaseKey.includes("tu-clave")) {
+    return {
+      error: loginAuthErrorMessage(
+        "Falta la clave publishable de Supabase en las variables de entorno."
+      ),
+      email,
+    };
+  }
+
+  const headerList = await headers();
+  const redirectTo = `${authRedirectOriginFromHeaders(headerList)}/auth/callback`;
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: redirectTo },
+  });
+
+  if (error) {
+    return { error: loginAuthErrorMessage(error.message, redirectTo), email };
+  }
+
+  return { sent: true, email };
 }
 
 export async function createCircle(
