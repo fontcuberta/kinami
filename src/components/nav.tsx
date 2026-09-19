@@ -21,7 +21,7 @@ export default async function Nav() {
         className="sticky top-0 z-40 border-b border-border-subtle bg-surface/95 backdrop-blur-md"
         style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
       >
-        <div className="mx-auto flex max-w-4xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
           <Link
             href="/circles"
             className="flex min-h-11 min-w-11 shrink-0 items-center gap-2 font-display text-xl font-semibold text-accent-700 sm:text-2xl"
