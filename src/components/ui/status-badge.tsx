@@ -1,13 +1,14 @@
-import type { SwapStatus } from "@/lib/types";
+"use client";
 
-// El estado nunca se comunica solo con color (WCAG 1.4.1 Uso del color):
-// cada estado lleva también un icono de forma distinta y una etiqueta de texto.
+import type { SwapStatus } from "@/lib/types";
+import { useI18n } from "@/i18n/client";
+
 const STATUS_CONFIG: Record<
   SwapStatus,
-  { label: string; classes: string; icon: React.ReactNode }
+  { key: "pending" | "accepted" | "declined" | "cancelled"; classes: string; icon: React.ReactNode }
 > = {
   pending: {
-    label: "Pendiente",
+    key: "pending",
     classes: "bg-neutral-100 text-neutral-700",
     icon: (
       <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="none">
@@ -17,7 +18,7 @@ const STATUS_CONFIG: Record<
     ),
   },
   accepted: {
-    label: "Aceptada",
+    key: "accepted",
     classes: "bg-success-50 text-success-800",
     icon: (
       <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="none">
@@ -32,7 +33,7 @@ const STATUS_CONFIG: Record<
     ),
   },
   declined: {
-    label: "Rechazada",
+    key: "declined",
     classes: "bg-danger-50 text-danger-800",
     icon: (
       <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="none">
@@ -46,7 +47,7 @@ const STATUS_CONFIG: Record<
     ),
   },
   cancelled: {
-    label: "Cancelada",
+    key: "cancelled",
     classes: "bg-neutral-100 text-text-secondary",
     icon: (
       <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="none">
@@ -57,13 +58,14 @@ const STATUS_CONFIG: Record<
 };
 
 export function StatusBadge({ status }: { status: SwapStatus }) {
+  const { t } = useI18n();
   const config = STATUS_CONFIG[status];
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold ${config.classes}`}
     >
       {config.icon}
-      {config.label}
+      {t(`status.${config.key}`)}
     </span>
   );
 }

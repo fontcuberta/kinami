@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { LinkButton } from "@/components/ui/button";
+import { getTranslator } from "@/i18n/server";
 import type { Circle, CircleMember, Home } from "@/lib/types";
 
 export async function generateMetadata({
@@ -12,13 +13,14 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const supabase = await createClient();
+  const { t } = await getTranslator();
   const { data: circle } = await supabase
     .from("circles")
     .select("name")
     .eq("id", id)
     .maybeSingle<{ name: string }>();
 
-  return { title: circle?.name ?? "Rueda" };
+  return { title: circle?.name ?? t("circles.fallbackTitle") };
 }
 
 export default async function CircleDetailPage({
@@ -28,6 +30,7 @@ export default async function CircleDetailPage({
 }) {
   const { id } = await params;
   const supabase = await createClient();
+  const { t } = await getTranslator();
 
   const { data: circle } = await supabase
     .from("circles")
@@ -54,16 +57,16 @@ export default async function CircleDetailPage({
   return (
     <div className="flex flex-col gap-10">
       <div>
-        <nav aria-label="Miga de pan" className="text-sm text-text-secondary">
+        <nav aria-label={t("common.breadcrumb")} className="text-sm text-text-secondary">
           <Link href="/circles" className="underline-offset-2 hover:text-accent-700 hover:underline">
-            Tus ruedas
+            {t("circles.breadcrumb")}
           </Link>{" "}
           / {circle.name}
         </nav>
         <h1 className="mt-1 font-display text-3xl font-semibold text-text">{circle.name}</h1>
         {circle.description && <p className="mt-1 text-text-secondary">{circle.description}</p>}
         <p className="mt-3 inline-flex items-center gap-2 rounded-lg bg-accent-50 px-3 py-1.5 text-sm text-accent-800">
-          Código de invitación:{" "}
+          {t("common.inviteCode")}:{" "}
           <span className="font-mono font-semibold tracking-wide">{circle.invite_code}</span>
         </p>
       </div>
@@ -71,14 +74,14 @@ export default async function CircleDetailPage({
       <section aria-labelledby="homes-heading">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <h2 id="homes-heading" className="text-xl font-semibold text-text">
-            Casas en esta rueda ({homes.length})
+            {t("circles.homes", { count: homes.length })}
           </h2>
-          <LinkButton href={`/circles/${id}/homes/new`}>+ Añadir mi casa</LinkButton>
+          <LinkButton href={`/circles/${id}/homes/new`}>+ {t("circles.addHome")}</LinkButton>
         </div>
 
         {homes.length === 0 ? (
           <p className="rounded-xl border border-dashed border-border-strong bg-surface p-6 text-text-secondary">
-            Todavía nadie ha añadido una casa a esta rueda.
+            {t("circles.noHomes")}
           </p>
         ) : (
           <ul className="grid gap-3 sm:grid-cols-2">
@@ -92,7 +95,7 @@ export default async function CircleDetailPage({
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={home.photos[0]}
-                      alt={`Foto de ${home.title}, en ${home.city}`}
+                      alt={t("home.photoOf", { title: home.title, city: home.city })}
                       className="h-40 w-full object-cover"
                     />
                   )}
@@ -102,7 +105,7 @@ export default async function CircleDetailPage({
                       {home.city}, {home.country}
                     </p>
                     <p className="mt-1 text-sm text-text-secondary">
-                      de {home.profiles?.full_name ?? "un miembro de la rueda"}
+                      {t("home.by", { name: home.profiles?.full_name ?? t("common.member") })}
                     </p>
                   </div>
                 </Link>
@@ -114,7 +117,7 @@ export default async function CircleDetailPage({
 
       <section aria-labelledby="members-heading">
         <h2 id="members-heading" className="mb-3 text-xl font-semibold text-text">
-          Miembros ({members?.length ?? 0})
+          {t("circles.members", { count: members?.length ?? 0 })}
         </h2>
         <ul className="flex flex-wrap gap-2">
           {(members as CircleMember[] | null)?.map((m) => (
@@ -122,10 +125,10 @@ export default async function CircleDetailPage({
               key={m.user_id}
               className="rounded-full border border-border-subtle bg-surface px-3 py-1.5 text-sm text-text"
             >
-              {m.profiles?.full_name ?? "Miembro"}
+              {m.profiles?.full_name ?? t("swap.member")}
               {m.role === "admin" && (
                 <span className="ml-1.5 rounded-full bg-accent-50 px-2 py-0.5 text-xs font-semibold text-accent-800">
-                  admin
+                  {t("circles.admin")}
                 </span>
               )}
             </li>

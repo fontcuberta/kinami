@@ -1,14 +1,24 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { SkipLink } from "@/components/ui/skip-link";
+import { I18nProvider } from "@/i18n/client";
+import { getLocale, getMessages, getTranslator } from "@/i18n/server";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: {
-    template: "%s — Kinami",
-    default: "Kinami — Homes within your circle",
-  },
-  description:
-    "Intercambia casa con la gente en la que confías. Círculos privados de amigos y familia, repartidos por el mundo.",
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getTranslator();
+  return {
+    title: {
+      template: "%s — Kinami",
+      default: t("meta.defaultTitle"),
+    },
+    description: t("meta.description"),
+  };
+}
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 // Aplica data-theme antes de pintar: preferencia guardada o sistema.
@@ -22,13 +32,18 @@ const themeInitScript = `
   } catch (e) {}
 `;
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="es" className="h-full antialiased" suppressHydrationWarning>
+    <html lang={locale} className="h-full antialiased" suppressHydrationWarning>
       <body className="min-h-full flex flex-col bg-bg text-text font-sans" suppressHydrationWarning>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-        <SkipLink />
-        {children}
+        <I18nProvider locale={locale} messages={messages}>
+          <SkipLink />
+          {children}
+        </I18nProvider>
       </body>
     </html>
   );

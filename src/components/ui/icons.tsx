@@ -164,3 +164,17 @@ export function MoonIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function UserIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+      <circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.8" />
+      <path
+        d="M5.5 19.5c0-3.3 2.9-6 6.5-6s6.5 2.7 6.5 6"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}

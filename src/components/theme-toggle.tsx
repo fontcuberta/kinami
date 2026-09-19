@@ -1,22 +1,23 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import { SunIcon, MoonIcon } from "@/components/ui/icons";
 import { applyTheme, readDocumentTheme, type Theme } from "@/lib/theme";
-
-function subscribeNever() {
-  return () => {};
-}
+import { useI18n } from "@/i18n/client";
 
 /**
  * Interruptor de tema claro/oscuro. El script inline en layout.tsx fija
  * data-theme antes de pintar; aquí sincronizamos el icono y gestionamos el clic.
  */
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>(() =>
-    typeof document !== "undefined" ? readDocumentTheme() : "light"
-  );
-  const mounted = useSyncExternalStore(subscribeNever, () => true, () => false);
+  const { t } = useI18n();
+  const [theme, setTheme] = useState<Theme>("light");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setTheme(readDocumentTheme());
+    setMounted(true);
+  }, []);
 
   function toggle() {
     const next: Theme = theme === "dark" ? "light" : "dark";
@@ -25,8 +26,10 @@ export function ThemeToggle() {
   }
 
   const label = mounted
-    ? `Cambiar a modo ${theme === "dark" ? "claro" : "oscuro"}`
-    : "Cambiar tema";
+    ? theme === "dark"
+      ? t("theme.toLight")
+      : t("theme.toDark")
+    : t("theme.toggle");
 
   return (
     <button

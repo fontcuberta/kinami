@@ -31,6 +31,8 @@ export type Home = {
   city: string;
   country: string;
   photos: string[];
+  amenities?: unknown;
+  house_manual?: string | null;
   created_at: string;
   profiles?: Profile;
 };
@@ -64,6 +66,10 @@ export type SwapAgreement = {
   house_rules: string | null;
   owner_accepted_at: string | null;
   requester_accepted_at: string | null;
+  owner_signed_name?: string | null;
+  requester_signed_name?: string | null;
+  contract_text?: string | null;
+  contract_locale?: string | null;
   updated_at: string;
 };
 

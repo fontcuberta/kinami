@@ -5,8 +5,10 @@ import { requestMagicLink } from "@/lib/actions";
 import { whatsappSupportUrl } from "@/lib/support";
 import { Input } from "@/components/ui/input";
 import { SubmitButton } from "@/components/ui/submit-button";
+import { useI18n } from "@/i18n/client";
 
 export function LoginForm() {
+  const { t } = useI18n();
   const [state, formAction] = useActionState(requestMagicLink, null);
   const email = state?.email ?? "";
 
@@ -15,8 +17,7 @@ export function LoginForm() {
       <div role="status" aria-live="polite">
         {state && "sent" in state && (
           <div className="rounded-lg border border-accent-100 bg-accent-50 p-4 text-accent-800">
-            Te enviamos un enlace de acceso a <strong>{state.email}</strong>. Ábrelo
-            desde este mismo dispositivo para entrar.
+            {t("login.sent", { email: state.email })}
           </div>
         )}
       </div>
@@ -24,33 +25,29 @@ export function LoginForm() {
       {(!state || !("sent" in state)) && (
         <form action={formAction} className="flex flex-col gap-4" noValidate>
           <Input
-            label="Correo electrónico"
+            label={t("login.email")}
             id="login-email"
             name="email"
             type="email"
             required
             autoComplete="email"
             inputMode="email"
-            placeholder="tu@email.com"
+            placeholder="you@email.com"
             defaultValue={email}
             error={state && "error" in state ? state.error : undefined}
           />
-          <SubmitButton pendingLabel="Enviando…">
-            Enviarme el enlace de acceso
-          </SubmitButton>
+          <SubmitButton pendingLabel={t("login.sending")}>{t("login.sendLink")}</SubmitButton>
 
           {state && "error" in state && (
             <p className="text-sm text-text-secondary">
-              ¿Sigue sin funcionar?{" "}
+              {t("login.help")}{" "}
               <a
-                href={whatsappSupportUrl(
-                  `Hola, no me llega el enlace de acceso a Kinami (${email || "mi correo"})`
-                )}
+                href={whatsappSupportUrl(t("login.whatsappBody", { email: email || "email" }))}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-medium text-accent-700 underline-offset-2 hover:underline"
               >
-                Avisa por WhatsApp
+                {t("login.whatsapp")}
               </a>
             </p>
           )}

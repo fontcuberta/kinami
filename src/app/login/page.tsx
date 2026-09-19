@@ -3,10 +3,13 @@ import Link from "next/link";
 import { LoginForm } from "./login-form";
 import { LogoMark } from "@/components/ui/logo-mark";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { getTranslator } from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Iniciar sesión",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getTranslator();
+  return { title: t("login.title") };
+}
 
 export default async function LoginPage({
   searchParams,
@@ -14,10 +17,12 @@ export default async function LoginPage({
   searchParams: Promise<{ deleted?: string }>;
 }) {
   const { deleted } = await searchParams;
+  const { t } = await getTranslator();
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-16">
-      <div className="absolute right-6 top-6 z-10">
+      <div className="absolute right-6 top-6 z-10 flex items-center gap-2">
+        <LanguageSwitcher />
         <ThemeToggle />
       </div>
 
@@ -43,13 +48,13 @@ export default async function LoginPage({
             role="status"
             className="mb-4 rounded-lg border border-accent-100 bg-accent-50 p-4 text-accent-800"
           >
-            Tu cuenta y tus datos se han borrado. Gracias por haber pasado por Kinami.
+            {t("login.deleted")}
           </div>
         )}
 
         <div className="rounded-2xl border border-border-subtle bg-surface p-8 shadow-sm">
-          <h1 className="sr-only">Iniciar sesión</h1>
-          <p className="mb-6 text-text-secondary">Entra en tu rueda de confianza.</p>
+          <h1 className="sr-only">{t("login.title")}</h1>
+          <p className="mb-6 text-text-secondary">{t("login.intro")}</p>
           <LoginForm />
         </div>
       </main>

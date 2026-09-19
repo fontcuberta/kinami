@@ -4,36 +4,27 @@ import { createClient } from "@/lib/supabase/server";
 import { LinkButton } from "@/components/ui/button";
 import { LogoMark } from "@/components/ui/logo-mark";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { HeroIllustration } from "@/components/hero-illustration";
 import { CircleGroupIcon, KeyHomeIcon, ChatIcon, ShieldIcon } from "@/components/ui/icons";
-
-const STEPS = [
-  {
-    icon: CircleGroupIcon,
-    title: "Crea o únete a una rueda",
-    body: "Un círculo privado de amigos y familia. Se entra solo con un código de invitación, nunca es público.",
-  },
-  {
-    icon: KeyHomeIcon,
-    title: "Comparte tu casa",
-    body: "Sube fotos, cuenta cómo es y marca cuándo está disponible para que tu rueda la vea.",
-  },
-  {
-    icon: ChatIcon,
-    title: "Pide el intercambio",
-    body: "Manda una solicitud, habla los detalles por el chat de la propia app y quedáis en las fechas.",
-  },
-];
+import { getTranslator } from "@/i18n/server";
 
 export default async function Home() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const { t } = await getTranslator();
 
   if (user) {
     redirect("/circles");
   }
+
+  const steps = [
+    { icon: CircleGroupIcon, title: t("landing.step1Title"), body: t("landing.step1Body") },
+    { icon: KeyHomeIcon, title: t("landing.step2Title"), body: t("landing.step2Body") },
+    { icon: ChatIcon, title: t("landing.step3Title"), body: t("landing.step3Body") },
+  ];
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -44,9 +35,10 @@ export default async function Home() {
             <span className="font-display text-xl font-semibold">Kinami</span>
           </div>
           <div className="flex items-center gap-2">
+            <LanguageSwitcher />
             <ThemeToggle />
             <LinkButton href="/login" variant="secondary" className="min-h-9 px-4 py-1.5 text-sm">
-              Iniciar sesión
+              {t("landing.login")}
             </LinkButton>
           </div>
         </div>
@@ -76,26 +68,22 @@ export default async function Home() {
           <div className="mx-auto grid max-w-5xl items-center gap-12 px-6 py-16 lg:grid-cols-2 lg:py-24">
             <div>
               <span className="inline-flex items-center rounded-full border border-accent-100 bg-accent-50 px-3 py-1 text-sm font-medium text-accent-800">
-                Círculos privados, no un mercado abierto
+                {t("landing.badge")}
               </span>
               <h1 className="mt-5 font-display text-4xl font-semibold leading-tight text-text sm:text-5xl">
-                Tus amigos tienen casas por todo el mundo.{" "}
-                <span className="text-accent-700">Descubre dónde te puedes quedar.</span>
+                {t("landing.title")}{" "}
+                <span className="text-accent-700">{t("landing.titleAccent")}</span>
               </h1>
-              <p className="mt-5 max-w-md text-lg text-text-secondary">
-                Kinami es para intercambiar casa con la gente que ya conoces: tu
-                rueda de amigos y familia, estén donde estén. Nada de perfiles
-                públicos ni desconocidos.
-              </p>
+              <p className="mt-5 max-w-md text-lg text-text-secondary">{t("landing.body")}</p>
               <div className="mt-8 flex flex-wrap items-center gap-4">
                 <LinkButton href="/login" className="px-6 py-3 text-base">
-                  Entrar en mi rueda
+                  {t("landing.cta")}
                 </LinkButton>
                 <Link
                   href="/login"
                   className="text-sm font-medium text-text-secondary underline decoration-border-strong underline-offset-4 hover:text-accent-700"
                 >
-                  ¿Ya tienes una cuenta?
+                  {t("landing.hasAccount")}
                 </Link>
               </div>
             </div>
@@ -109,10 +97,10 @@ export default async function Home() {
         <section className="border-y border-border-subtle bg-surface">
           <div className="mx-auto max-w-5xl px-6 py-16">
             <h2 className="font-display text-2xl font-semibold text-text sm:text-3xl">
-              Cómo funciona
+              {t("landing.how")}
             </h2>
             <div className="mt-10 grid gap-8 sm:grid-cols-3">
-              {STEPS.map((step, i) => (
+              {steps.map((step, i) => (
                 <div key={step.title} className="flex flex-col gap-3">
                   <div className="flex h-11 w-11 items-center justify-center rounded-full bg-accent-50 text-accent-700">
                     <step.icon className="h-5 w-5" />
@@ -135,13 +123,8 @@ export default async function Home() {
               <ShieldIcon className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="font-semibold text-text">Solo tu rueda lo ve</h2>
-              <p className="mt-2 max-w-2xl text-text-secondary">
-                No hay listados públicos ni buscadores externos. Cada casa se
-                comparte únicamente con los círculos a los que su dueño decide
-                añadirla, y solo se entra a un círculo con un código de
-                invitación.
-              </p>
+              <h2 className="font-semibold text-text">{t("landing.privacyTitle")}</h2>
+              <p className="mt-2 max-w-2xl text-text-secondary">{t("landing.privacyBody")}</p>
             </div>
           </div>
         </section>
@@ -153,7 +136,7 @@ export default async function Home() {
             <LogoMark className="h-4 w-4 text-accent-700" />
             <span className="font-display font-semibold">Kinami</span>
           </div>
-          <p>Home swapping en círculos de confianza.</p>
+          <p>{t("landing.footer")}</p>
         </div>
       </footer>
     </div>

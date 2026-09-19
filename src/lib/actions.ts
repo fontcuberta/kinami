@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { loginAuthErrorMessage } from "@/lib/auth-errors";
 import { authRedirectOriginFromHeaders } from "@/lib/https";
+import { getTranslator } from "@/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 
 export type ActionState = { error: string } | null;
@@ -22,24 +23,17 @@ async function requireUser() {
 
 // Traduce los mensajes de error técnicos de Postgres/Supabase a algo que
 // una persona pueda entender y corregir (WCAG 3.3.1 Identificación de errores).
-function friendlyError(message: string): string {
+async function friendlyError(message: string): Promise<string> {
+  const { t } = await getTranslator();
   const lower = message.toLowerCase();
-  if (lower.includes("delete_own_account")) {
-    return "Falta la migración de borrado de cuenta en Supabase. Ejecuta supabase/migrations/002_borrar_cuenta.sql en el SQL Editor.";
+  if (lower.includes("delete_own_account")) return t("actions.missingDeleteRpc");
+  if (lower.includes("swap_agreements") || lower.includes("owner_signed_name")) {
+    return t("actions.missingAgreements");
   }
-  if (lower.includes("swap_agreements")) {
-    return "Falta la migración de acuerdos de intercambio en Supabase. Ejecuta supabase/migrations/003_acuerdo_intercambio.sql en el SQL Editor.";
-  }
-  if (message.toLowerCase().includes("invite")) {
-    return "Ese código de invitación no es válido. Revisa que lo hayas copiado bien.";
-  }
-  if (message.toLowerCase().includes("check constraint")) {
-    return "La fecha de fin tiene que ser igual o posterior a la de inicio.";
-  }
-  if (message.toLowerCase().includes("row-level security") || message.toLowerCase().includes("policy")) {
-    return "No tienes permiso para hacer esto.";
-  }
-  return "Algo ha salido mal. Inténtalo de nuevo en unos segundos.";
+  if (lower.includes("invite")) return t("actions.invite");
+  if (lower.includes("check constraint")) return t("actions.dateOrder");
+  if (lower.includes("row-level security") || lower.includes("policy")) return t("actions.rls");
+  return t("actions.generic");
 }
 
 export async function requestMagicLink(
@@ -47,16 +41,15 @@ export async function requestMagicLink(
   formData: FormData
 ): Promise<MagicLinkState> {
   const email = String(formData.get("email") ?? "").trim();
+  const { t } = await getTranslator();
   if (!email) {
-    return { error: "Escribe tu correo electrónico.", email: "" };
+    return { error: t("login.missingEmail"), email: "" };
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
   if (!supabaseUrl || supabaseUrl.includes("TU-PROYECTO")) {
     return {
-      error: loginAuthErrorMessage(
-        "Falta la Project URL de Supabase (https://xxxx.supabase.co) en las variables de entorno."
-      ),
+      error: await loginAuthErrorMessage(t("authErrors.missingUrl")),
       email,
     };
   }
@@ -64,9 +57,7 @@ export async function requestMagicLink(
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
   if (!supabaseKey || supabaseKey.includes("tu-clave")) {
     return {
-      error: loginAuthErrorMessage(
-        "Falta la clave publishable de Supabase en las variables de entorno."
-      ),
+      error: await loginAuthErrorMessage(t("authErrors.missingKey")),
       email,
     };
   }
@@ -80,7 +71,7 @@ export async function requestMagicLink(
   });
 
   if (error) {
-    return { error: loginAuthErrorMessage(error.message, redirectTo), email };
+    return { error: await loginAuthErrorMessage(error.message, redirectTo), email };
   }
 
   return { sent: true, email };
@@ -93,7 +84,10 @@ export async function createCircle(
   const { supabase, user } = await requireUser();
   const name = String(formData.get("name") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
-  if (!name) return { error: "Ponle un nombre a la rueda." };
+  if (!name) {
+    const { t } = await getTranslator();
+    return { error: t("actions.nameRequired") };
+  }
 
   const id = randomUUID();
   const { error } = await supabase.from("circles").insert({
@@ -103,7 +97,7 @@ export async function createCircle(
     created_by: user.id,
   });
 
-  if (error) return { error: friendlyError(error.message) };
+  if (error) return { error: await friendlyError(error.message) };
 
   redirect(`/circles/${id}`);
 }
@@ -114,11 +108,14 @@ export async function joinCircle(
 ): Promise<ActionState> {
   const { supabase } = await requireUser();
   const code = String(formData.get("code") ?? "").trim();
-  if (!code) return { error: "Escribe el código de invitación." };
+  if (!code) {
+    const { t } = await getTranslator();
+    return { error: t("actions.codeRequired") };
+  }
 
   const { data, error } = await supabase.rpc("join_circle_by_code", { code });
 
-  if (error) return { error: friendlyError(error.message) };
+  if (error) return { error: await friendlyError(error.message) };
 
   redirect(`/circles/${data}`);
 }
@@ -137,7 +134,7 @@ export async function addAvailability(formData: FormData) {
     notes: notes || null,
   });
 
-  if (error) throw new Error(friendlyError(error.message));
+  if (error) throw new Error(await friendlyError(error.message));
 
   revalidatePath(`/homes/${homeId}`);
 }
@@ -148,7 +145,7 @@ export async function deleteAvailability(formData: FormData) {
   const homeId = String(formData.get("home_id"));
 
   const { error } = await supabase.from("availability").delete().eq("id", id);
-  if (error) throw new Error(friendlyError(error.message));
+  if (error) throw new Error(await friendlyError(error.message));
 
   revalidatePath(`/homes/${homeId}`);
 }
@@ -162,7 +159,7 @@ export async function shareHomeWithCircle(formData: FormData) {
     .from("home_circles")
     .insert({ home_id: homeId, circle_id: circleId });
 
-  if (error) throw new Error(friendlyError(error.message));
+  if (error) throw new Error(await friendlyError(error.message));
 
   revalidatePath(`/homes/${homeId}`);
 }
@@ -178,10 +175,12 @@ export async function createSwapRequest(
   const endDate = String(formData.get("end_date"));
 
   if (!startDate || !endDate) {
-    return { error: "Indica las fechas de inicio y fin." };
+    const { t } = await getTranslator();
+    return { error: t("actions.datesRequired") };
   }
   if (endDate < startDate) {
-    return { error: "La fecha de fin tiene que ser igual o posterior a la de inicio." };
+    const { t } = await getTranslator();
+    return { error: t("actions.dateOrder") };
   }
 
   const { data, error } = await supabase
@@ -196,7 +195,7 @@ export async function createSwapRequest(
     .select("id")
     .single();
 
-  if (error) return { error: friendlyError(error.message) };
+  if (error) return { error: await friendlyError(error.message) };
 
   redirect(`/requests/${data.id}`);
 }
@@ -211,7 +210,7 @@ export async function updateSwapStatus(formData: FormData) {
     .update({ status })
     .eq("id", id);
 
-  if (error) throw new Error(friendlyError(error.message));
+  if (error) throw new Error(await friendlyError(error.message));
 
   revalidatePath(`/requests/${id}`);
   revalidatePath("/requests");
@@ -224,12 +223,14 @@ export async function deleteAccount(
   const { supabase } = await requireUser();
   const confirmation = String(formData.get("confirmation") ?? "");
 
-  if (confirmation !== "BORRAR") {
-    return { error: 'Escribe "BORRAR" para confirmar. No se ha borrado nada.' };
+  const { t } = await getTranslator();
+  const allowed = ["DELETE", "BORRAR", "ESBORRAR"];
+  if (!allowed.includes(confirmation.trim().toUpperCase())) {
+    return { error: t("actions.deleteConfirm", { word: t("account.deleteWord") }) };
   }
 
   const { error } = await supabase.rpc("delete_own_account");
-  if (error) return { error: friendlyError(error.message) };
+  if (error) return { error: await friendlyError(error.message) };
 
   await supabase.auth.signOut();
   redirect("/login?deleted=1");
@@ -247,24 +248,41 @@ export async function saveHouseRules(formData: FormData) {
     .maybeSingle<{ homes: { owner_id: string } | null }>();
 
   if (!request || request.homes?.owner_id !== user.id) {
-    throw new Error("No tienes permiso para hacer esto.");
+    const { t } = await getTranslator();
+    throw new Error(t("actions.noPermission"));
   }
 
   const { error } = await supabase.from("swap_agreements").upsert({
     swap_request_id: swapRequestId,
     house_rules: houseRules || null,
+    owner_accepted_at: null,
+    requester_accepted_at: null,
+    owner_signed_name: null,
+    requester_signed_name: null,
+    contract_text: null,
     updated_at: new Date().toISOString(),
   });
 
-  if (error) throw new Error(friendlyError(error.message));
+  if (error) throw new Error(await friendlyError(error.message));
 
   revalidatePath(`/requests/${swapRequestId}`);
 }
 
-export async function confirmAgreement(formData: FormData) {
+export async function signSwapContract(formData: FormData) {
   const { supabase, user } = await requireUser();
+  const { t, locale } = await getTranslator();
   const swapRequestId = String(formData.get("swap_request_id"));
   const role = String(formData.get("role"));
+  const signatureName = String(formData.get("signature_name") ?? "").trim();
+  const agreed = formData.get("agree") === "on";
+  const contractText = String(formData.get("contract_text") ?? "").trim();
+
+  if (signatureName.length < 2) {
+    throw new Error(t("contract.needName"));
+  }
+  if (!agreed) {
+    throw new Error(t("contract.needAgree"));
+  }
 
   const { data: request } = await supabase
     .from("swap_requests")
@@ -272,21 +290,29 @@ export async function confirmAgreement(formData: FormData) {
     .eq("id", swapRequestId)
     .maybeSingle<{ requester_id: string; homes: { owner_id: string } | null }>();
 
-  if (!request) throw new Error("Solicitud no encontrada.");
+  if (!request) throw new Error(t("actions.notFound"));
 
   const isOwner = request.homes?.owner_id === user.id;
   const isRequester = request.requester_id === user.id;
   if ((role === "owner" && !isOwner) || (role === "requester" && !isRequester)) {
-    throw new Error("No tienes permiso para hacer esto.");
+    throw new Error(t("actions.noPermission"));
   }
 
-  const field = role === "owner" ? "owner_accepted_at" : "requester_accepted_at";
+  const now = new Date().toISOString();
+  const payload =
+    role === "owner"
+      ? { owner_accepted_at: now, owner_signed_name: signatureName }
+      : { requester_accepted_at: now, requester_signed_name: signatureName };
+
   const { error } = await supabase.from("swap_agreements").upsert({
     swap_request_id: swapRequestId,
-    [field]: new Date().toISOString(),
+    contract_text: contractText || null,
+    contract_locale: locale,
+    updated_at: now,
+    ...payload,
   });
 
-  if (error) throw new Error(friendlyError(error.message));
+  if (error) throw new Error(await friendlyError(error.message));
 
   revalidatePath(`/requests/${swapRequestId}`);
 }
@@ -303,7 +329,7 @@ export async function sendMessage(formData: FormData) {
     body,
   });
 
-  if (error) throw new Error(friendlyError(error.message));
+  if (error) throw new Error(await friendlyError(error.message));
 
   revalidatePath(`/requests/${swapRequestId}`);
 }

@@ -2,18 +2,22 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { getTranslator } from "@/i18n/server";
 import type { SwapRequest } from "@/lib/types";
 
-export const metadata: Metadata = {
-  title: "Solicitudes de intercambio",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getTranslator();
+  return { title: t("swap.listTitle") };
+}
 
 function RequestCard({
   request,
   perspective,
+  asks,
 }: {
   request: SwapRequest;
   perspective: "sent" | "received";
+  asks: string;
 }) {
   return (
     <Link
@@ -26,9 +30,7 @@ function RequestCard({
           <time dateTime={request.start_date}>{request.start_date}</time>
           {" → "}
           <time dateTime={request.end_date}>{request.end_date}</time>
-          {perspective === "received" && request.profiles?.full_name
-            ? ` · pide ${request.profiles.full_name}`
-            : ""}
+          {perspective === "received" && request.profiles?.full_name ? asks : ""}
         </p>
       </div>
       <StatusBadge status={request.status} />
@@ -41,6 +43,7 @@ export default async function RequestsPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const { t } = await getTranslator();
 
   const { data: sent } = await supabase
     .from("swap_requests")
@@ -56,39 +59,43 @@ export default async function RequestsPage() {
 
   return (
     <div className="flex flex-col gap-10">
-      <h1 className="font-display text-3xl font-semibold text-text">Solicitudes de intercambio</h1>
+      <h1 className="font-display text-3xl font-semibold text-text">{t("swap.listTitle")}</h1>
 
       <section aria-labelledby="received-heading">
         <h2 id="received-heading" className="mb-3 text-xl font-semibold text-text">
-          Recibidas
+          {t("swap.received")}
         </h2>
         {received?.length ? (
           <ul className="flex flex-col gap-2">
             {(received as unknown as SwapRequest[]).map((r) => (
               <li key={r.id}>
-                <RequestCard request={r} perspective="received" />
+                <RequestCard
+                  request={r}
+                  perspective="received"
+                  asks={t("swap.asks", { name: r.profiles?.full_name ?? t("common.member") })}
+                />
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-text-secondary">Nadie te ha pedido intercambio todavía.</p>
+          <p className="text-text-secondary">{t("swap.noneReceived")}</p>
         )}
       </section>
 
       <section aria-labelledby="sent-heading">
         <h2 id="sent-heading" className="mb-3 text-xl font-semibold text-text">
-          Enviadas
+          {t("swap.sent")}
         </h2>
         {sent?.length ? (
           <ul className="flex flex-col gap-2">
             {(sent as unknown as SwapRequest[]).map((r) => (
               <li key={r.id}>
-                <RequestCard request={r} perspective="sent" />
+                <RequestCard request={r} perspective="sent" asks="" />
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-text-secondary">Todavía no has pedido ningún intercambio.</p>
+          <p className="text-text-secondary">{t("swap.noneSent")}</p>
         )}
       </section>
     </div>

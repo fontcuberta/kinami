@@ -1,4 +1,7 @@
+"use client";
+
 import type { InputHTMLAttributes, TextareaHTMLAttributes, SelectHTMLAttributes } from "react";
+import { useI18n } from "@/i18n/client";
 
 type FieldChrome = {
   label: string;
@@ -36,6 +39,7 @@ function FieldMeta({ id, hint, error }: { id: string; hint?: string; error?: str
 }
 
 function RequiredMark({ required }: { required?: boolean }) {
+  const { t } = useI18n();
   if (!required) return null;
   return (
     <>
@@ -43,7 +47,7 @@ function RequiredMark({ required }: { required?: boolean }) {
         {" "}
         *
       </span>
-      <span className="sr-only"> (obligatorio)</span>
+      <span className="sr-only"> {t("common.required")}</span>
     </>
   );
 }

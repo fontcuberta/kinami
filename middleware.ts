@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isLocalHost, requestIsHttps } from "@/lib/https";
+import { DEFAULT_LOCALE, isLocale, localeFromAcceptLanguage, LOCALE_COOKIE } from "@/i18n/config";
 import { updateSession } from "@/lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
@@ -17,7 +18,17 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  return await updateSession(request);
+  const response = await updateSession(request);
+  if (!isLocale(request.cookies.get(LOCALE_COOKIE)?.value)) {
+    const locale =
+      localeFromAcceptLanguage(request.headers.get("accept-language")) ?? DEFAULT_LOCALE;
+    response.cookies.set(LOCALE_COOKIE, locale, {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+      sameSite: "lax",
+    });
+  }
+  return response;
 }
 
 export const config = {
