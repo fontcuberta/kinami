@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { AMENITY_KEYS, parseHomeAmenities, type HomeAmenities } from "@/lib/home-amenities";
 import { Input, TextArea } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { AmenityIcon } from "@/components/ui/amenity-icon";
 import { useI18n } from "@/i18n/client";
 import type { Home } from "@/lib/types";
 
@@ -189,22 +190,37 @@ export function HomeForm(props: HomeFormProps) {
             return (
               <li
                 key={key}
-                className="rounded-xl border border-border-subtle bg-surface p-4"
+                className={`rounded-2xl border p-4 transition-colors ${
+                  item.has
+                    ? "border-accent-100 bg-accent-50/70"
+                    : "border-border-subtle bg-surface hover:border-accent-100"
+                }`}
               >
-                <label className="flex cursor-pointer items-start gap-3">
+                <label className="flex cursor-pointer items-start gap-3.5">
+                  <span
+                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl transition-colors ${
+                      item.has
+                        ? "bg-brand-fill text-white shadow-[0_8px_20px_rgba(41,85,166,0.22)]"
+                        : "bg-neutral-100 text-neutral-700"
+                    }`}
+                  >
+                    <AmenityIcon amenity={key} className="h-6 w-6" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-semibold text-text">{label}</span>
+                    <span className="mt-0.5 block text-sm leading-relaxed text-text-secondary">
+                      {hint}
+                    </span>
+                  </span>
                   <input
                     type="checkbox"
-                    className="mt-1 h-4 w-4 accent-[var(--color-brand-fill)]"
+                    className="mt-2 h-5 w-5 shrink-0 accent-[var(--color-brand-fill)]"
                     checked={item.has}
                     onChange={(e) => toggleAmenity(key, e.target.checked)}
                   />
-                  <span>
-                    <span className="block font-semibold text-text">{label}</span>
-                    <span className="mt-0.5 block text-sm text-text-secondary">{hint}</span>
-                  </span>
                 </label>
                 {item.has && (
-                  <div className="mt-3 pl-7">
+                  <div className="mt-4 border-t border-accent-100 pt-4">
                     <TextArea
                       label={t("home.howAmenity", { label })}
                       id={`amenity-notes-${key}`}

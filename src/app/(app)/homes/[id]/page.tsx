@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { addAvailability, deleteAvailability } from "@/lib/actions";
@@ -7,6 +6,7 @@ import { listedAmenities, parseHomeAmenities } from "@/lib/home-amenities";
 import { Input } from "@/components/ui/input";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { Button, LinkButton } from "@/components/ui/button";
+import { AmenityIcon } from "@/components/ui/amenity-icon";
 import { SwapRequestForm } from "@/components/swap-request-form";
 import { getTranslator } from "@/i18n/server";
 import type { Availability, Circle, Home } from "@/lib/types";
@@ -131,12 +131,15 @@ export default async function HomeDetailPage({
               {t("home.amenities")}
             </h2>
             {amenities.length > 0 ? (
-              <ul className="mt-4 flex flex-wrap gap-2">
+              <ul className="mt-4 flex flex-wrap gap-2.5">
                 {amenities.map((item) => (
                   <li
                     key={item.key}
-                    className="rounded-full border border-accent-100 bg-accent-50 px-3 py-1.5 text-sm font-medium text-accent-800"
+                    className="group inline-flex items-center gap-2 rounded-full border border-accent-100 bg-accent-50 py-1.5 pl-1.5 pr-3.5 text-sm font-semibold text-accent-800 shadow-[0_5px_16px_rgba(41,85,166,0.08)] transition-transform hover:-translate-y-0.5"
                   >
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-surface text-accent-700 shadow-sm">
+                      <AmenityIcon amenity={item.key} className="h-[18px] w-[18px]" />
+                    </span>
                     {t(`amenities.${item.key}.label`)}
                   </li>
                 ))}
@@ -162,7 +165,10 @@ export default async function HomeDetailPage({
                 <dl className="mt-5 divide-y divide-border-subtle rounded-2xl border border-border-subtle bg-surface">
                   {amenityNotes.map((item) => (
                     <div key={item.key} className="px-4 py-3 sm:px-5">
-                      <dt className="text-sm font-semibold text-text">
+                      <dt className="flex items-center gap-2 text-sm font-semibold text-text">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent-50 text-accent-700">
+                          <AmenityIcon amenity={item.key} className="h-[18px] w-[18px]" />
+                        </span>
                         {t(`amenities.${item.key}.label`)}
                       </dt>
                       <dd className="mt-1 whitespace-pre-line text-sm leading-relaxed text-text-secondary">
