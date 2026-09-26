@@ -162,6 +162,47 @@ export const es = {
     emptyHomesTitle: "The first home could be yours",
     emptyHomesBody: "Add your place and turn this circle into a world of possible stays.",
     exploreHome: "Explore home",
+    exampleLabel: "Example",
+    exampleHint:
+      "This circle is sample data so you can explore Kinami. Leave it any time from the bottom of this page.",
+    leaveTitle: "Leave this circle",
+    leaveBody: "You will lose access to its homes until someone invites you again.",
+    leaveExampleBody:
+      "You can leave the example circle any time. Your own circles and homes stay as they are.",
+    leave: "Leave circle",
+    leaving: "Leaving…",
+    inviteDisabledTooltip:
+      "The example circle is shared with everyone automatically. You cannot invite people into it.",
+  },
+  tour: {
+    eyebrow: "Step {current} of {total}",
+    skip: "Skip",
+    next: "Next",
+    back: "Back",
+    done: "Got it",
+    saving: "Saving…",
+    steps: {
+      welcome: {
+        title: "Welcome to Kinami",
+        body: "Kinami is for swapping homes inside private circles of people you trust. A short tour will show you the basics.",
+      },
+      example: {
+        title: "You already have an example circle",
+        body: "We added a sample circle with a couple of homes so you can look around. It is marked Example — leave it whenever you like.",
+      },
+      homes: {
+        title: "Homes and availability",
+        body: "Open a home to see photos, amenities and free dates. When you are ready, add your own home to a circle you create or join.",
+      },
+      swap: {
+        title: "Requests and contracts",
+        body: "Ask for a stay, chat in the request, and when both of you accept you sign a private swap contract with your name and a drawn signature.",
+      },
+      done: {
+        title: "You are ready",
+        body: "Create or join a real circle with people you know. You can replay this tour any time from My account.",
+      },
+    },
   },
   home: {
     fallbackTitle: "Home",
@@ -277,6 +318,15 @@ export const es = {
     bothSigned: "Both of you have signed the contract.",
     typeName: "Type your full name to sign",
     nameLabel: "Full name",
+    drawLabel: "Your drawn signature",
+    drawHint: "Draw your signature in the box with your finger or mouse.",
+    drawReady: "Signature captured. Clear it if you want to redraw.",
+    clearSignature: "Clear",
+    needDraw: "Draw your signature to sign.",
+    signatureTooLarge: "That signature image is too large. Clear and draw again.",
+    signatureOf: "Signature of {name}",
+    signedTitle: "Signed contract",
+    print: "Print / save as PDF",
     agree: "I have read this agreement and sign it electronically.",
     sign: "Sign the contract",
     signing: "Signing…",
@@ -299,14 +349,43 @@ The parties agree:
 6. House rules for this stay:
 {rules}
 
-By typing their name, each party signs this private electronic agreement.`,
+By typing their name and drawing their signature, each party signs this private electronic agreement.`,
     defaultRules: "(none added yet)",
   },
   account: {
     title: "My account",
+    subtitle: "Your profile and how you appear in your circles.",
+    profile: "Profile",
+    profileBody: "This is how people in your circles see you.",
+    fullName: "Full name",
+    fullNameHint: "Shown on homes, requests and messages.",
+    fullNameRequired: "Enter your full name.",
+    phone: "Phone",
+    phoneHint:
+      "Optional. Members of your circles can see it. Use it only if you want them to reach you outside the app.",
+    phonePlaceholder: "+34 600 000 000",
+    email: "Login email",
+    emailHint: "Used to sign in. It cannot be changed here.",
+    avatar: "Photo",
+    avatarHint: "JPEG, PNG or WebP, up to 2 MB.",
+    avatarChange: "Change photo",
+    avatarUpload: "Upload photo",
+    avatarRemove: "Remove photo",
+    avatarUploading: "Uploading photo…",
+    avatarInvalidType: "Use a JPEG, PNG or WebP image.",
+    avatarTooLarge: "That photo is larger than 2 MB. Choose a smaller one.",
+    avatarMigrationMissing:
+      "The avatar storage migration is missing. Run supabase/migrations/006_profile_avatars.sql in the SQL Editor.",
+    save: "Save profile",
+    saving: "Saving…",
+    saved: "Profile saved.",
+    tourTitle: "Guided tour",
+    tourBody: "Replay the short introduction to circles, homes and swap contracts.",
+    tourReplay: "Replay tour",
+    tourStarting: "Opening…",
     privacy: "Privacy",
     privacyBody:
-      "Kinami only keeps the data needed for the app to work. Only members of your circle see your homes and availability. There are no public listings, and nobody outside a swap request sees its messages.",
+      "Kinami only keeps the data needed for the app to work. Only members of your circle see your homes, availability and profile. There are no public listings, and nobody outside a swap request sees its messages.",
     help: "Need help?",
     helpBody: "Message us on WhatsApp and we will look into it.",
     whatsapp: "Open WhatsApp",
@@ -338,6 +417,12 @@ By typing their name, each party signs this private electronic agreement.`,
       "The account-deletion migration is missing. Run supabase/migrations/002_borrar_cuenta.sql in the SQL Editor.",
     missingAgreements:
       "The swap-agreement migration is missing. Run supabase/migrations/003_acuerdo_intercambio.sql and 005_contrato_firma.sql in the SQL Editor.",
+    missingAvatars:
+      "The avatar storage migration is missing. Run supabase/migrations/006_profile_avatars.sql in the SQL Editor.",
+    missingSignatures:
+      "The signatures migration is missing. Run supabase/migrations/007_demo_tour_signatures.sql in the SQL Editor.",
+    missingOnboarding:
+      "The onboarding migration is missing. Run supabase/migrations/007_demo_tour_signatures.sql in the SQL Editor, then reload.",
   },
 } as const;
 
@@ -512,6 +597,47 @@ export const ca: Messages = {
     emptyHomesTitle: "La primera casa podria ser la teva",
     emptyHomesBody: "Afegeix casa teva i converteix aquesta roda en un món de possibles estades.",
     exploreHome: "Descobrir la casa",
+    exampleLabel: "Exemple",
+    exampleHint:
+      "Aquesta roda és de mostra perquè puguis explorar Kinami. Pots deixar-la quan vulguis al final d'aquesta pàgina.",
+    leaveTitle: "Deixar aquesta roda",
+    leaveBody: "Perdràs l'accés a les seves cases fins que et tornin a convidar.",
+    leaveExampleBody:
+      "Pots deixar la roda d'exemple quan vulguis. Les teves rodes i cases es queden com estan.",
+    leave: "Deixar la roda",
+    leaving: "S'està sortint…",
+    inviteDisabledTooltip:
+      "La roda d'exemple s'afegeix sola a tothom. No pots convidar-hi gent.",
+  },
+  tour: {
+    eyebrow: "Pas {current} de {total}",
+    skip: "Ometre",
+    next: "Següent",
+    back: "Enrere",
+    done: "Entesos",
+    saving: "S'està desant…",
+    steps: {
+      welcome: {
+        title: "Benvingut/da a Kinami",
+        body: "Kinami serveix per intercanviar casa dins de rodes privades de gent de confiança. Un breu tour et mostrarà el bàsic.",
+      },
+      example: {
+        title: "Ja tens una roda d'exemple",
+        body: "Hem afegit una roda de mostra amb un parell de cases perquè puguis mirar. Està marcada com a Exemple — deixa-la quan vulguis.",
+      },
+      homes: {
+        title: "Cases i disponibilitat",
+        body: "Obre una casa per veure fotos, equipament i dates lliures. Quan vulguis, afegeix la teva a una roda que creïs o a la qual t'uneixis.",
+      },
+      swap: {
+        title: "Sol·licituds i contractes",
+        body: "Demana una estada, xateja a la sol·licitud i, quan tots dos l'accepteu, signeu un contracte privat amb el nom i una firma dibuixada.",
+      },
+      done: {
+        title: "Ja hi ets",
+        body: "Crea o uneix-te a una roda real amb gent que coneixes. Pots tornar a veure aquest tour des de El meu compte.",
+      },
+    },
   },
   home: {
     fallbackTitle: "Casa",
@@ -627,6 +753,15 @@ export const ca: Messages = {
     bothSigned: "Tots dos heu signat el contracte.",
     typeName: "Escriu el teu nom complet per signar",
     nameLabel: "Nom complet",
+    drawLabel: "La teva firma dibuixada",
+    drawHint: "Dibuixa la teva firma al requadre amb el dit o el ratolí.",
+    drawReady: "Firma capturada. Esborra-la si la vols tornar a fer.",
+    clearSignature: "Esborrar",
+    needDraw: "Dibuixa la teva firma per signar.",
+    signatureTooLarge: "La imatge de la firma és massa gran. Esborra i torna a dibuixar.",
+    signatureOf: "Firma de {name}",
+    signedTitle: "Contracte signat",
+    print: "Imprimir / desar com a PDF",
     agree: "He llegit aquest acord i el signo electrònicament.",
     sign: "Signar el contracte",
     signing: "S'està signant…",
@@ -649,14 +784,43 @@ Les parts acorden:
 6. Normes de la casa per a aquesta estada:
 {rules}
 
-En escriure el seu nom, cada part signa aquest acord electrònic privat.`,
+En escriure el seu nom i dibuixar la seva firma, cada part signa aquest acord electrònic privat.`,
     defaultRules: "(encara no n'hi ha)",
   },
   account: {
     title: "El meu compte",
+    subtitle: "El teu perfil i com et veuen a les teves rodes.",
+    profile: "Perfil",
+    profileBody: "Així et veu la gent de les teves rodes.",
+    fullName: "Nom complet",
+    fullNameHint: "Es mostra a les cases, sol·licituds i missatges.",
+    fullNameRequired: "Escriu el teu nom complet.",
+    phone: "Telèfon",
+    phoneHint:
+      "Opcional. Els membres de les teves rodes el poden veure. Usa'l només si vols que et contactin fora de l'app.",
+    phonePlaceholder: "+34 600 000 000",
+    email: "Correu d'accés",
+    emailHint: "Serveix per iniciar sessió. Aquí no es pot canviar.",
+    avatar: "Foto",
+    avatarHint: "JPEG, PNG o WebP, fins a 2 MB.",
+    avatarChange: "Canviar la foto",
+    avatarUpload: "Pujar una foto",
+    avatarRemove: "Treure la foto",
+    avatarUploading: "S'està pujant la foto…",
+    avatarInvalidType: "Fes servir una imatge JPEG, PNG o WebP.",
+    avatarTooLarge: "Aquesta foto pesa més de 2 MB. Tria'n una de més petita.",
+    avatarMigrationMissing:
+      "Falta la migració d'avatares. Executa supabase/migrations/006_profile_avatars.sql a l'SQL Editor.",
+    save: "Desar el perfil",
+    saving: "S'està desant…",
+    saved: "Perfil desat.",
+    tourTitle: "Tour guiat",
+    tourBody: "Torna a veure la introducció breu a rodes, cases i contractes d'intercanvi.",
+    tourReplay: "Tornar a veure el tour",
+    tourStarting: "S'està obrint…",
     privacy: "Privadesa",
     privacyBody:
-      "Kinami només guarda les dades necessàries perquè l'app funcioni. Només els membres de la teva roda veuen les teves cases i la disponibilitat. No hi ha llistats públics, i ningú fora d'una sol·licitud d'intercanvi en veu els missatges.",
+      "Kinami només guarda les dades necessàries perquè l'app funcioni. Només els membres de la teva roda veuen les teves cases, la disponibilitat i el perfil. No hi ha llistats públics, i ningú fora d'una sol·licitud d'intercanvi en veu els missatges.",
     help: "Algun problema?",
     helpBody: "Escriu-nos per WhatsApp i ho mirem.",
     whatsapp: "Obrir WhatsApp",
@@ -688,6 +852,12 @@ En escriure el seu nom, cada part signa aquest acord electrònic privat.`,
       "Falta la migració d'esborrat de compte. Executa supabase/migrations/002_borrar_cuenta.sql a l'SQL Editor.",
     missingAgreements:
       "Falta la migració d'acords d'intercanvi. Executa supabase/migrations/003_acuerdo_intercambio.sql i 005_contrato_firma.sql a l'SQL Editor.",
+    missingAvatars:
+      "Falta la migració d'avatares. Executa supabase/migrations/006_profile_avatars.sql a l'SQL Editor.",
+    missingSignatures:
+      "Falta la migració de firmes. Executa supabase/migrations/007_demo_tour_signatures.sql a l'SQL Editor.",
+    missingOnboarding:
+      "Falta la migració d'onboarding. Executa supabase/migrations/007_demo_tour_signatures.sql a l'SQL Editor i torna a carregar.",
   },
 };
 
@@ -854,6 +1024,47 @@ export const messages: Record<Locale, Messages> = {
       emptyHomesTitle: "La primera casa podría ser la tuya",
       emptyHomesBody: "Añade tu casa y convierte esta rueda en un mundo de posibles estancias.",
       exploreHome: "Descubrir la casa",
+      exampleLabel: "Ejemplo",
+      exampleHint:
+        "Esta rueda es de muestra para que puedas explorar Kinami. Puedes dejarla cuando quieras al final de esta página.",
+      leaveTitle: "Dejar esta rueda",
+      leaveBody: "Perderás el acceso a sus casas hasta que te vuelvan a invitar.",
+      leaveExampleBody:
+        "Puedes dejar la rueda de ejemplo cuando quieras. Tus propias ruedas y casas se quedan como están.",
+      leave: "Dejar la rueda",
+      leaving: "Saliendo…",
+      inviteDisabledTooltip:
+        "La rueda de ejemplo se añade sola a todo el mundo. No puedes invitar a nadie a ella.",
+    },
+    tour: {
+      eyebrow: "Paso {current} de {total}",
+      skip: "Omitir",
+      next: "Siguiente",
+      back: "Atrás",
+      done: "Entendido",
+      saving: "Guardando…",
+      steps: {
+        welcome: {
+          title: "Bienvenido/a a Kinami",
+          body: "Kinami sirve para intercambiar casa dentro de ruedas privadas de gente de confianza. Un breve tour te mostrará lo básico.",
+        },
+        example: {
+          title: "Ya tienes una rueda de ejemplo",
+          body: "Hemos añadido una rueda de muestra con un par de casas para que puedas mirar. Está marcada como Ejemplo — déjala cuando quieras.",
+        },
+        homes: {
+          title: "Casas y disponibilidad",
+          body: "Abre una casa para ver fotos, equipamiento y fechas libres. Cuando quieras, añade la tuya a una rueda que crees o a la que te unas.",
+        },
+        swap: {
+          title: "Solicitudes y contratos",
+          body: "Pide una estancia, chatea en la solicitud y, cuando los dos la aceptéis, firmáis un contrato privado con el nombre y una firma dibujada.",
+        },
+        done: {
+          title: "Ya estás listo/a",
+          body: "Crea o únete a una rueda real con gente que conoces. Puedes volver a ver este tour desde Mi cuenta.",
+        },
+      },
     },
     home: {
       fallbackTitle: "Casa",
@@ -973,6 +1184,15 @@ export const messages: Record<Locale, Messages> = {
       bothSigned: "Los dos habéis firmado el contrato.",
       typeName: "Escribe tu nombre completo para firmar",
       nameLabel: "Nombre completo",
+      drawLabel: "Tu firma dibujada",
+      drawHint: "Dibuja tu firma en el recuadro con el dedo o el ratón.",
+      drawReady: "Firma capturada. Bórrala si quieres volver a dibujar.",
+      clearSignature: "Borrar",
+      needDraw: "Dibuja tu firma para firmar.",
+      signatureTooLarge: "La imagen de la firma es demasiado grande. Borra y vuelve a dibujar.",
+      signatureOf: "Firma de {name}",
+      signedTitle: "Contrato firmado",
+      print: "Imprimir / guardar como PDF",
       agree: "He leído este acuerdo y lo firmo electrónicamente.",
       sign: "Firmar el contrato",
       signing: "Firmando…",
@@ -995,14 +1215,43 @@ Las partes acuerdan:
 6. Normas de la casa para esta estancia:
 {rules}
 
-Al escribir su nombre, cada parte firma este acuerdo electrónico privado.`,
+Al escribir su nombre y dibujar su firma, cada parte firma este acuerdo electrónico privado.`,
       defaultRules: "(aún no hay)",
     },
     account: {
       title: "Mi cuenta",
+      subtitle: "Tu perfil y cómo te ven en tus ruedas.",
+      profile: "Perfil",
+      profileBody: "Así te ven las personas de tus ruedas.",
+      fullName: "Nombre completo",
+      fullNameHint: "Se muestra en casas, solicitudes y mensajes.",
+      fullNameRequired: "Escribe tu nombre completo.",
+      phone: "Teléfono",
+      phoneHint:
+        "Opcional. Los miembros de tus ruedas pueden verlo. Úsalo solo si quieres que te contacten fuera de la app.",
+      phonePlaceholder: "+34 600 000 000",
+      email: "Correo de acceso",
+      emailHint: "Sirve para iniciar sesión. Aquí no se puede cambiar.",
+      avatar: "Foto",
+      avatarHint: "JPEG, PNG o WebP, hasta 2 MB.",
+      avatarChange: "Cambiar foto",
+      avatarUpload: "Subir foto",
+      avatarRemove: "Quitar foto",
+      avatarUploading: "Subiendo foto…",
+      avatarInvalidType: "Usa una imagen JPEG, PNG o WebP.",
+      avatarTooLarge: "Esa foto pesa más de 2 MB. Elige una más pequeña.",
+      avatarMigrationMissing:
+        "Falta la migración de avatares. Ejecuta supabase/migrations/006_profile_avatars.sql en el SQL Editor.",
+      save: "Guardar perfil",
+      saving: "Guardando…",
+      saved: "Perfil guardado.",
+      tourTitle: "Tour guiado",
+      tourBody: "Vuelve a ver la introducción breve a ruedas, casas y contratos de intercambio.",
+      tourReplay: "Volver a ver el tour",
+      tourStarting: "Abriendo…",
       privacy: "Privacidad",
       privacyBody:
-        "Kinami no guarda tus datos más de lo necesario para que la app funcione. Solo los miembros de tu rueda ven tus casas y tu disponibilidad, no hay listados públicos, y nadie fuera de una solicitud de intercambio ve sus mensajes.",
+        "Kinami no guarda tus datos más de lo necesario para que la app funcione. Solo los miembros de tu rueda ven tus casas, tu disponibilidad y tu perfil. No hay listados públicos, y nadie fuera de una solicitud de intercambio ve sus mensajes.",
       help: "¿Algún problema?",
       helpBody: "Escríbenos por WhatsApp y lo miramos.",
       whatsapp: "Abrir WhatsApp",
@@ -1034,6 +1283,12 @@ Al escribir su nombre, cada parte firma este acuerdo electrónico privado.`,
         "Falta la migración de borrado de cuenta. Ejecuta supabase/migrations/002_borrar_cuenta.sql en el SQL Editor.",
       missingAgreements:
         "Falta la migración de acuerdos de intercambio. Ejecuta supabase/migrations/003_acuerdo_intercambio.sql y 005_contrato_firma.sql en el SQL Editor.",
+      missingAvatars:
+        "Falta la migración de avatares. Ejecuta supabase/migrations/006_profile_avatars.sql en el SQL Editor.",
+      missingSignatures:
+        "Falta la migración de firmas. Ejecuta supabase/migrations/007_demo_tour_signatures.sql en el SQL Editor.",
+      missingOnboarding:
+        "Falta la migración de onboarding. Ejecuta supabase/migrations/007_demo_tour_signatures.sql en el SQL Editor y recarga.",
     },
     meta: {
       defaultTitle: "Kinami — Casas dentro de tu círculo",

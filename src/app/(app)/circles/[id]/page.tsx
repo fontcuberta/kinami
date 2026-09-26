@@ -2,8 +2,10 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { leaveCircle } from "@/lib/actions";
 import { CopyInviteCode } from "@/components/copy-invite-code";
 import { LinkButton } from "@/components/ui/button";
+import { SubmitButton } from "@/components/ui/submit-button";
 import {
   ArrowUpRightIcon,
   CircleGroupIcon,
@@ -12,7 +14,9 @@ import {
   ShieldIcon,
   UsersIcon,
 } from "@/components/ui/icons";
+import { UserAvatar } from "@/components/user-avatar";
 import { getTranslator } from "@/i18n/server";
+import { isDemoCircle, photosForHome } from "@/lib/demo";
 import type { Circle, CircleMember, Home } from "@/lib/types";
 
 export async function generateMetadata({
@@ -30,15 +34,6 @@ export async function generateMetadata({
     .maybeSingle<{ name: string }>();
 
   return { title: circle?.name ?? t("circles.fallbackTitle") };
-}
-
-function initials(name: string | null | undefined) {
-  return (name ?? "?")
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase();
 }
 
 export default async function CircleDetailPage({
@@ -70,11 +65,18 @@ export default async function CircleDetailPage({
 
   const homes = (homeLinks ?? [])
     .map((h) => h.homes as unknown as Home)
-    .filter(Boolean);
+    .filter(Boolean)
+    .map((home) => ({ ...home, photos: photosForHome(home.id, home.photos) }));
   const circleMembers = ((members ?? []) as unknown as CircleMember[]).sort((a, b) =>
     a.role === b.role ? 0 : a.role === "admin" ? -1 : 1
   );
   const cover = homes.find((home) => home.photos?.[0])?.photos?.[0];
+  const example = isDemoCircle(circle.id);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const myMembership = circleMembers.find((m) => m.user_id === user?.id);
+  const canLeave = Boolean(myMembership);
 
   return (
     <div className="flex flex-col gap-14">
@@ -107,7 +109,7 @@ export default async function CircleDetailPage({
           <div className="mt-10 max-w-2xl sm:mt-14">
             <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-blue-200">
               <ShieldIcon className="h-4 w-4" />
-              {t("circles.detailEyebrow")}
+              {example ? t("circles.exampleLabel") : t("circles.detailEyebrow")}
             </p>
             <h1 className="mt-3 font-display text-4xl font-semibold leading-[1.05] sm:text-6xl">
               {circle.name}
@@ -115,6 +117,11 @@ export default async function CircleDetailPage({
             {circle.description ? (
               <p className="mt-4 max-w-xl text-base leading-relaxed text-white/80 sm:text-lg">
                 {circle.description}
+              </p>
+            ) : null}
+            {example ? (
+              <p className="mt-3 max-w-xl text-sm leading-relaxed text-blue-100">
+                {t("circles.exampleHint")}
               </p>
             ) : null}
 
@@ -134,20 +141,53 @@ export default async function CircleDetailPage({
             </div>
           </div>
 
-          <div className="mt-9 flex flex-col justify-between gap-5 rounded-[1.5rem] border border-white/15 bg-white/10 p-4 backdrop-blur-md sm:flex-row sm:items-center sm:p-5">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-blue-200">
-                {t("circles.inviteTitle")}
-              </p>
-              <p className="mt-1 text-sm text-white/75">{t("circles.inviteBody")}</p>
+          {example ? (
+            <div
+              className="group relative mt-9 rounded-[1.5rem] border border-white/15 bg-white/5 p-4 sm:p-5"
+              title={t("circles.inviteDisabledTooltip")}
+              tabIndex={0}
+              aria-describedby="example-invite-disabled"
+            >
+              <div className="pointer-events-none flex flex-col justify-between gap-5 opacity-45 sm:flex-row sm:items-center">
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-blue-200">
+                    {t("circles.inviteTitle")}
+                  </p>
+                  <p className="mt-1 text-sm text-white/75">{t("circles.inviteBody")}</p>
+                </div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <code className="rounded-xl border border-white/15 bg-black/20 px-4 py-2.5 font-mono text-base font-bold tracking-[0.18em] text-white">
+                    •••••••
+                  </code>
+                  <span className="inline-flex min-h-11 items-center justify-center rounded-full bg-white/40 px-4 py-2 text-sm font-semibold text-[#1e4483]">
+                    {t("circles.copyCode")}
+                  </span>
+                </div>
+              </div>
+              <div
+                id="example-invite-disabled"
+                role="tooltip"
+                className="pointer-events-none absolute bottom-[calc(100%+0.75rem)] left-1/2 z-10 w-[min(100%,20rem)] -translate-x-1/2 rounded-xl border border-border-subtle bg-surface px-3.5 py-2.5 text-sm leading-snug text-text opacity-0 shadow-[0_12px_40px_rgba(8,18,38,0.28)] transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100"
+              >
+                {t("circles.inviteDisabledTooltip")}
+              </div>
             </div>
-            <div className="flex flex-wrap items-center gap-3">
-              <code className="rounded-xl border border-white/15 bg-black/20 px-4 py-2.5 font-mono text-base font-bold tracking-[0.18em] text-white">
-                {circle.invite_code}
-              </code>
-              <CopyInviteCode code={circle.invite_code} />
+          ) : (
+            <div className="mt-9 flex flex-col justify-between gap-5 rounded-[1.5rem] border border-white/15 bg-white/10 p-4 backdrop-blur-md sm:flex-row sm:items-center sm:p-5">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-blue-200">
+                  {t("circles.inviteTitle")}
+                </p>
+                <p className="mt-1 text-sm text-white/75">{t("circles.inviteBody")}</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <code className="rounded-xl border border-white/15 bg-black/20 px-4 py-2.5 font-mono text-base font-bold tracking-[0.18em] text-white">
+                  {circle.invite_code}
+                </code>
+                <CopyInviteCode code={circle.invite_code} />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </header>
 
@@ -251,18 +291,12 @@ export default async function CircleDetailPage({
               key={member.user_id}
               className="flex items-center gap-3 rounded-2xl border border-border-subtle bg-surface p-3.5 shadow-[0_8px_24px_rgba(27,33,48,0.04)]"
             >
-              {member.profiles?.avatar_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={member.profiles.avatar_url}
-                  alt=""
-                  className="h-12 w-12 shrink-0 rounded-full object-cover"
-                />
-              ) : (
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent-50 text-sm font-bold text-accent-700">
-                  {initials(member.profiles?.full_name)}
-                </span>
-              )}
+              <UserAvatar
+                userId={member.user_id}
+                fullName={member.profiles?.full_name}
+                avatarUrl={member.profiles?.avatar_url}
+                size="lg"
+              />
               <div className="min-w-0">
                 <p className="truncate font-semibold text-text">
                   {member.profiles?.full_name ?? t("swap.member")}
@@ -282,6 +316,26 @@ export default async function CircleDetailPage({
           ))}
         </ul>
       </section>
+
+      {canLeave ? (
+        <section
+          aria-labelledby="leave-heading"
+          className="rounded-[1.75rem] border border-border-subtle bg-surface p-6"
+        >
+          <h2 id="leave-heading" className="font-display text-xl font-semibold text-text">
+            {t("circles.leaveTitle")}
+          </h2>
+          <p className="mt-2 text-sm text-text-secondary">
+            {example ? t("circles.leaveExampleBody") : t("circles.leaveBody")}
+          </p>
+          <form action={leaveCircle} className="mt-4">
+            <input type="hidden" name="circle_id" value={circle.id} />
+            <SubmitButton variant="secondary" pendingLabel={t("circles.leaving")}>
+              {t("circles.leave")}
+            </SubmitButton>
+          </form>
+        </section>
+      ) : null}
     </div>
   );
 }

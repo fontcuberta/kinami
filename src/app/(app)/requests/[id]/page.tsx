@@ -68,6 +68,17 @@ export default async function RequestDetailPage({
     .eq("swap_request_id", id)
     .maybeSingle<SwapAgreement>();
 
+  async function signatureUrl(path: string | null | undefined) {
+    if (!path) return null;
+    const { data } = await supabase.storage.from("signatures").createSignedUrl(path, 60 * 60);
+    return data?.signedUrl ?? null;
+  }
+
+  const [ownerSignatureUrl, requesterSignatureUrl] = await Promise.all([
+    signatureUrl(agreement?.owner_signature_path),
+    signatureUrl(agreement?.requester_signature_path),
+  ]);
+
   return (
     <div className="mx-auto flex max-w-lg flex-col gap-6">
       <div>
@@ -123,6 +134,8 @@ export default async function RequestDetailPage({
           endDate={request.end_date}
           hostName={hostName}
           guestName={guestName}
+          ownerSignatureUrl={ownerSignatureUrl}
+          requesterSignatureUrl={requesterSignatureUrl}
         />
       )}
 

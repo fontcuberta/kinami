@@ -27,10 +27,21 @@ async function friendlyError(message: string): Promise<string> {
   const { t } = await getTranslator();
   const lower = message.toLowerCase();
   if (lower.includes("delete_own_account")) return t("actions.missingDeleteRpc");
+  if (lower.includes("avatars") || lower.includes("bucket not found")) {
+    return t("actions.missingAvatars");
+  }
+  if (lower.includes("signatures")) {
+    return t("actions.missingSignatures");
+  }
   if (lower.includes("swap_agreements") || lower.includes("owner_signed_name")) {
     return t("actions.missingAgreements");
   }
-  if (lower.includes("invite")) return t("actions.invite");
+  if (lower.includes("invite") || lower.includes("invitación") || lower.includes("invitacion")) {
+    return t("actions.invite");
+  }
+  if (lower.includes("ejemplo") || lower.includes("example")) {
+    return t("circles.inviteDisabledTooltip");
+  }
   if (lower.includes("check constraint")) return t("actions.dateOrder");
   if (lower.includes("row-level security") || lower.includes("policy")) return t("actions.rls");
   return t("actions.generic");
@@ -118,6 +129,65 @@ export async function joinCircle(
   if (error) return { error: await friendlyError(error.message) };
 
   redirect(`/circles/${data}`);
+}
+
+export async function leaveCircle(formData: FormData) {
+  const { supabase, user } = await requireUser();
+  const circleId = String(formData.get("circle_id") ?? "").trim();
+  if (!circleId) {
+    const { t } = await getTranslator();
+    throw new Error(t("actions.notFound"));
+  }
+
+  const { error } = await supabase
+    .from("circle_members")
+    .delete()
+    .eq("circle_id", circleId)
+    .eq("user_id", user.id);
+
+  if (error) throw new Error(await friendlyError(error.message));
+
+  revalidatePath("/circles");
+  revalidatePath(`/circles/${circleId}`);
+  redirect("/circles");
+}
+
+export async function completeOnboarding() {
+  const { supabase, user } = await requireUser();
+  const { error } = await supabase
+    .from("profiles")
+    .update({ onboarding_completed_at: new Date().toISOString() })
+    .eq("id", user.id);
+
+  if (error) {
+    const lower = error.message.toLowerCase();
+    if (
+      lower.includes("onboarding_completed_at") ||
+      lower.includes("schema cache") ||
+      lower.includes("could not find")
+    ) {
+      const { t } = await getTranslator();
+      throw new Error(t("actions.missingOnboarding"));
+    }
+    throw new Error(await friendlyError(error.message));
+  }
+
+  revalidatePath("/circles");
+  revalidatePath("/account");
+}
+
+export async function resetOnboarding() {
+  const { supabase, user } = await requireUser();
+  const { error } = await supabase
+    .from("profiles")
+    .update({ onboarding_completed_at: null })
+    .eq("id", user.id);
+
+  if (error) throw new Error(await friendlyError(error.message));
+
+  revalidatePath("/circles");
+  revalidatePath("/account");
+  redirect("/circles");
 }
 
 export async function addAvailability(formData: FormData) {
@@ -259,6 +329,8 @@ export async function saveHouseRules(formData: FormData) {
     requester_accepted_at: null,
     owner_signed_name: null,
     requester_signed_name: null,
+    owner_signature_path: null,
+    requester_signature_path: null,
     contract_text: null,
     updated_at: new Date().toISOString(),
   });
@@ -276,12 +348,22 @@ export async function signSwapContract(formData: FormData) {
   const signatureName = String(formData.get("signature_name") ?? "").trim();
   const agreed = formData.get("agree") === "on";
   const contractText = String(formData.get("contract_text") ?? "").trim();
+  const signatureImage = formData.get("signature_image");
 
   if (signatureName.length < 2) {
     throw new Error(t("contract.needName"));
   }
   if (!agreed) {
     throw new Error(t("contract.needAgree"));
+  }
+  if (!(signatureImage instanceof File) || signatureImage.size === 0) {
+    throw new Error(t("contract.needDraw"));
+  }
+  if (signatureImage.type !== "image/png") {
+    throw new Error(t("contract.needDraw"));
+  }
+  if (signatureImage.size > 1024 * 1024) {
+    throw new Error(t("contract.signatureTooLarge"));
   }
 
   const { data: request } = await supabase
@@ -298,11 +380,29 @@ export async function signSwapContract(formData: FormData) {
     throw new Error(t("actions.noPermission"));
   }
 
+  const signaturePath = `${swapRequestId}/${user.id}.png`;
+  const { error: uploadError } = await supabase.storage
+    .from("signatures")
+    .upload(signaturePath, signatureImage, {
+      contentType: "image/png",
+      upsert: true,
+    });
+
+  if (uploadError) throw new Error(await friendlyError(uploadError.message));
+
   const now = new Date().toISOString();
   const payload =
     role === "owner"
-      ? { owner_accepted_at: now, owner_signed_name: signatureName }
-      : { requester_accepted_at: now, requester_signed_name: signatureName };
+      ? {
+          owner_accepted_at: now,
+          owner_signed_name: signatureName,
+          owner_signature_path: signaturePath,
+        }
+      : {
+          requester_accepted_at: now,
+          requester_signed_name: signatureName,
+          requester_signature_path: signaturePath,
+        };
 
   const { error } = await supabase.from("swap_agreements").upsert({
     swap_request_id: swapRequestId,

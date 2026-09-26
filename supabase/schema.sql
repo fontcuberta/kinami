@@ -11,10 +11,12 @@ create table if not exists public.profiles (
   full_name text,
   avatar_url text,
   phone text,
+  onboarding_completed_at timestamptz,
   created_at timestamptz not null default now()
 );
 
 -- Crea el profile automáticamente cuando alguien se registra
+-- y lo une a la rueda de ejemplo si existe (ver migración 007).
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -22,7 +24,17 @@ security definer set search_path = public
 as $$
 begin
   insert into public.profiles (id, full_name)
-  values (new.id, new.raw_user_meta_data->>'full_name');
+  values (new.id, new.raw_user_meta_data->>'full_name')
+  on conflict (id) do nothing;
+
+  insert into public.circle_members (circle_id, user_id, role)
+  select 'a0000000-0000-4000-8000-000000000001'::uuid, new.id, 'member'
+  where exists (
+    select 1 from public.circles
+    where id = 'a0000000-0000-4000-8000-000000000001'::uuid
+  )
+  on conflict (circle_id, user_id) do nothing;
+
   return new;
 end;
 $$;
@@ -116,13 +128,22 @@ security definer set search_path = public
 as $$
 declare
   target_circle_id uuid;
+  invite text := upper(trim(code));
 begin
+  if invite = 'KINAMIEX' then
+    raise exception 'La rueda de ejemplo no acepta invitaciones';
+  end if;
+
   select id into target_circle_id
   from public.circles
-  where invite_code = upper(trim(code));
+  where invite_code = invite;
 
   if target_circle_id is null then
     raise exception 'Código de invitación no válido';
+  end if;
+
+  if target_circle_id = 'a0000000-0000-4000-8000-000000000001'::uuid then
+    raise exception 'La rueda de ejemplo no acepta invitaciones';
   end if;
 
   insert into public.circle_members (circle_id, user_id, role)
@@ -381,3 +402,70 @@ create policy "home_photos_insert" on storage.objects for insert
 drop policy if exists "home_photos_delete" on storage.objects;
 create policy "home_photos_delete" on storage.objects for delete
   using (bucket_id = 'home-photos' and owner = auth.uid());
+
+-- ============================================================================
+-- STORAGE: bucket público para avatares de perfil ({user_id}/avatar.*)
+-- ============================================================================
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'avatars',
+  'avatars',
+  true,
+  2097152,
+  array['image/jpeg', 'image/png', 'image/webp']
+)
+on conflict (id) do update set
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists "avatars_read" on storage.objects;
+create policy "avatars_read" on storage.objects for select
+  using (bucket_id = 'avatars');
+
+drop policy if exists "avatars_insert_own" on storage.objects;
+create policy "avatars_insert_own" on storage.objects for insert
+  with check (
+    bucket_id = 'avatars'
+    and auth.uid() is not null
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+drop policy if exists "avatars_update_own" on storage.objects;
+create policy "avatars_update_own" on storage.objects for update
+  using (
+    bucket_id = 'avatars'
+    and auth.uid() is not null
+    and (storage.foldername(name))[1] = auth.uid()::text
+  )
+  with check (
+    bucket_id = 'avatars'
+    and auth.uid() is not null
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+drop policy if exists "avatars_delete_own" on storage.objects;
+create policy "avatars_delete_own" on storage.objects for delete
+  using (
+    bucket_id = 'avatars'
+    and auth.uid() is not null
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+-- ============================================================================
+-- STORAGE: bucket privado para firmas de contrato ({swap_request_id}/{user_id}.png)
+-- ============================================================================
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'signatures',
+  'signatures',
+  false,
+  1048576,
+  array['image/png']
+)
+on conflict (id) do update set
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
+
+-- Las políticas de firmas dependen de can_access_swap_request (migración 003 + 007).

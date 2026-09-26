@@ -137,7 +137,23 @@ src/app/(app)/circles         → listar, crear y unirte a ruedas
 src/app/(app)/circles/[id]    → detalle de una rueda: miembros y casas
 src/app/(app)/homes/[id]      → detalle de una casa: disponibilidad, pedir swap
 src/app/(app)/requests        → solicitudes de intercambio (enviadas/recibidas)
+src/app/(app)/account         → perfil, avatar, sesión y borrado de cuenta
 src/lib/actions.ts            → todas las mutaciones (Server Actions)
 src/lib/supabase/             → clientes de Supabase (browser, server, middleware)
 supabase/schema.sql           → todo el esquema de base de datos + seguridad (RLS)
+supabase/migrations/          → migraciones posteriores (002…007); ejecutar en SQL Editor
 ```
+
+### Migraciones posteriores a `schema.sql`
+
+Si el proyecto ya tenía el schema inicial, ejecuta en orden en el SQL Editor:
+
+1. `002_borrar_cuenta.sql`
+2. `003_acuerdo_intercambio.sql`
+3. `004_guia_casa.sql`
+4. `005_contrato_firma.sql`
+5. `006_profile_avatars.sql` — bucket `avatars` + políticas; **necesario antes de subir fotos de perfil**
+6. `007_demo_tour_signatures.sql` — rueda de ejemplo, tour, firmas dibujadas; **necesario para onboarding y firmar contratos**
+7. `008_demo_photos_invite_lock.sql` — fotos de las casas de ejemplo + bloqueo del código KINAMIEX
+
+Instalaciones nuevas: basta con `schema.sql` (ya incluye el bucket de avatares) y luego `002`–`008` en orden.

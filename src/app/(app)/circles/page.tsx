@@ -9,7 +9,9 @@ import {
   ShieldIcon,
   UsersIcon,
 } from "@/components/ui/icons";
+import { UserAvatar } from "@/components/user-avatar";
 import { getTranslator } from "@/i18n/server";
+import { isDemoCircle, photosForHome } from "@/lib/demo";
 import type { Circle, Home, Profile } from "@/lib/types";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -60,21 +62,13 @@ const fallbackCardStyles = [
   "bg-[linear-gradient(145deg,#4c315c_0%,#73588a_52%,#a68ab7_100%)]",
 ] as const;
 
-function initials(name: string | null | undefined) {
-  return (name ?? "?")
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase();
-}
-
 function CircleList({
   circles,
   emptyTitle,
   emptyBody,
   inviteCodeLabel,
   circleLabel,
+  exampleLabel,
   openCircle,
   homesLabel,
   membersLabel,
@@ -84,6 +78,7 @@ function CircleList({
   emptyBody: string;
   inviteCodeLabel: string;
   circleLabel: string;
+  exampleLabel: string;
   openCircle: string;
   homesLabel: (count: number) => string;
   membersLabel: (count: number) => string;
@@ -110,10 +105,12 @@ function CircleList({
     <ul className="grid gap-4 sm:grid-cols-2">
       {circles.map((circle, index) => {
         const cover = circle.homes.find((home) => home.photos?.[0])?.photos?.[0];
+        const example = isDemoCircle(circle.id);
         return (
         <li key={circle.id}>
           <Link
             href={`/circles/${circle.id}`}
+            data-tour={example ? "example-circle" : undefined}
             className={`group relative flex min-h-[270px] overflow-hidden rounded-[1.75rem] p-5 text-white shadow-[0_16px_45px_rgba(20,35,68,0.14)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(20,35,68,0.22)] ${
               fallbackCardStyles[index % fallbackCardStyles.length]
             }`}
@@ -142,7 +139,7 @@ function CircleList({
               <div className="flex items-start justify-between gap-3">
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/15 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.13em] backdrop-blur-md">
                   <ShieldIcon className="h-3.5 w-3.5" />
-                  {circleLabel}
+                  {example ? exampleLabel : circleLabel}
                 </span>
                 <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 backdrop-blur-md transition-transform group-hover:rotate-45 group-hover:bg-white group-hover:text-[#1e4483]">
                   <ArrowUpRightIcon className="h-5 w-5" />
@@ -169,13 +166,14 @@ function CircleList({
 
                   <div className="flex -space-x-2" aria-label={membersLabel(circle.members.length)}>
                     {circle.members.slice(0, 3).map((member, memberIndex) => (
-                      <span
+                      <UserAvatar
                         key={`${member.id}-${memberIndex}`}
-                        title={member.full_name ?? undefined}
-                        className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white/70 bg-[#eaf1fd] text-[10px] font-bold text-[#1e4483]"
-                      >
-                        {initials(member.full_name)}
-                      </span>
+                        userId={member.id}
+                        fullName={member.full_name}
+                        avatarUrl={member.avatar_url}
+                        size="sm"
+                        ringClassName="border-2 border-white/70"
+                      />
                     ))}
                   </div>
                 </div>
@@ -206,7 +204,11 @@ export default async function CirclesPage() {
 
   const baseCircles = (memberships ?? [])
     .map((m) => m.circles as unknown as Circle)
-    .filter(Boolean);
+    .filter(Boolean)
+    .sort((a, b) => {
+      if (isDemoCircle(a.id) === isDemoCircle(b.id)) return 0;
+      return isDemoCircle(a.id) ? -1 : 1;
+    });
   const circleIds = baseCircles.map((circle) => circle.id);
 
   const [memberResult, homeResult] = circleIds.length
@@ -240,7 +242,8 @@ export default async function CirclesPage() {
     homes: homeRows
       .filter((row) => row.circle_id === circle.id)
       .map((row) => row.homes)
-      .filter((home): home is Home => Boolean(home)),
+      .filter((home): home is Home => Boolean(home))
+      .map((home) => ({ ...home, photos: photosForHome(home.id, home.photos) })),
   }));
 
   return (
@@ -289,6 +292,7 @@ export default async function CirclesPage() {
             emptyBody={t("circles.emptyBody")}
             inviteCodeLabel={t("common.inviteCode")}
             circleLabel={t("circles.circleLabel")}
+            exampleLabel={t("circles.exampleLabel")}
             openCircle={t("circles.openCircle")}
             homesLabel={(count) =>
               count === 1

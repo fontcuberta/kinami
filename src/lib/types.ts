@@ -3,6 +3,7 @@ export type Profile = {
   full_name: string | null;
   avatar_url: string | null;
   phone: string | null;
+  onboarding_completed_at?: string | null;
   created_at: string;
 };
 
@@ -68,6 +69,8 @@ export type SwapAgreement = {
   requester_accepted_at: string | null;
   owner_signed_name?: string | null;
   requester_signed_name?: string | null;
+  owner_signature_path?: string | null;
+  requester_signature_path?: string | null;
   contract_text?: string | null;
   contract_locale?: string | null;
   updated_at: string;

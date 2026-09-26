@@ -9,6 +9,7 @@ import { Button, LinkButton } from "@/components/ui/button";
 import { AmenityIcon } from "@/components/ui/amenity-icon";
 import { SwapRequestForm } from "@/components/swap-request-form";
 import { getTranslator } from "@/i18n/server";
+import { photosForHome } from "@/lib/demo";
 import type { Availability, Circle, Home } from "@/lib/types";
 
 export async function generateMetadata({
@@ -52,7 +53,7 @@ export default async function HomeDetailPage({
   const isOwner = home.owner_id === user!.id;
   const amenities = listedAmenities(parseHomeAmenities(home.amenities));
   const amenityNotes = amenities.filter((item) => item.notes);
-  const photos = home.photos ?? [];
+  const photos = photosForHome(home.id, home.photos);
   const [hero, ...restPhotos] = photos;
   const ownerName = home.profiles?.full_name ?? t("common.member");
 
