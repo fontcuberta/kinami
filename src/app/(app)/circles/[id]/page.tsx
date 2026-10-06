@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { leaveCircle } from "@/lib/actions";
-import { SubmitButton } from "@/components/ui/submit-button";
+import { EntityManagement } from "@/components/entity-management";
 import {
   CircleDetailView,
   type CircleSection,
@@ -152,15 +151,21 @@ export default async function CircleDetailPage({
             <p className="mt-2 max-w-xl text-sm text-text-secondary">
               {example ? t("circles.leaveExampleBody") : t("circles.leaveBody")}
             </p>
-            <form action={leaveCircle} className="mt-4">
-              <input type="hidden" name="circle_id" value={id} />
-              <SubmitButton
-                variant="secondary"
-                pendingLabel={t("circles.leaving")}
-              >
-                {t("circles.leave")}
-              </SubmitButton>
-            </form>
+            <EntityManagement
+              id={id}
+              name={circle.name}
+              operation="leave_circle"
+            />
+            {!example &&
+              members.some(
+                (m) => m.user_id === user.id && m.role === "admin",
+              ) && (
+                <EntityManagement
+                  id={id}
+                  name={circle.name}
+                  operation="delete_circle"
+                />
+              )}
           </>
         ) : undefined
       }

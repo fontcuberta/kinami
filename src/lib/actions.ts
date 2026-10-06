@@ -146,18 +146,17 @@ export async function joinCircle(
 }
 
 export async function leaveCircle(formData: FormData) {
-  const { supabase, user } = await requireUser();
+  const { supabase } = await requireUser();
   const circleId = String(formData.get("circle_id") ?? "").trim();
   if (!circleId) {
     const { t } = await getTranslator();
     throw new Error(t("actions.notFound"));
   }
 
-  const { error } = await supabase
-    .from("circle_members")
-    .delete()
-    .eq("circle_id", circleId)
-    .eq("user_id", user.id);
+  const { error } = await supabase.rpc("manage_home_or_circle", {
+    operation: "leave_circle",
+    target_id: circleId,
+  });
 
   if (error) throw new Error(await friendlyError(error.message));
 

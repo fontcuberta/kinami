@@ -388,12 +388,12 @@ export function CircleDetailView({
             )}
           </div>
           {leaveControl && (
-            <details className="circle-disclosure">
-              <summary>{c.leaveArea}</summary>
+            <section className="circle-disclosure">
+              <h3 className="text-lg font-semibold">{c.leaveArea}</h3>
               <div className="border-t border-border-subtle p-6">
                 {leaveControl}
               </div>
-            </details>
+            </section>
           )}
         </section>
       )}

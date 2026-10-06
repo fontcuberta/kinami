@@ -174,3 +174,7 @@ Validación: `npm run lint`, `npx tsc --noEmit`, `node scripts/check-home-sharin
 La revisión visual `/login/circles-review` contiene datos ficticios y solo está disponible en desarrollo (404 en producción). No modifica propiedades reales. Validar los flujos completos con una sesión autenticada antes de desplegar.
 
 El objetivo de +20% de visitas requiere comparar sesiones durante 28 días antes y después del lanzamiento; no es un resultado medido. Conviene acompañarlo de casas compartidas, visitas a fichas y solicitudes enviadas. Este cambio no instala analítica ni envía notificaciones.
+
+### Home and circle lifecycle
+
+Apply `supabase/migrations/009_manage_homes_circles.sql` to existing databases before using the new controls. Fresh schema installations include it. Owners can delete homes from their detail page; members can leave circles under Information; admins can delete circles there. Deletion requires typing the entity name and explicitly warns that associated requests and conversations are removed by existing foreign-key cascades. Leaving withdraws the user's houses without deleting them. The last administrator must retain membership or delete the circle. Authentication, ownership, admin checks and leave cleanup run in one database transaction. Uploaded storage objects are not purged by these operations.

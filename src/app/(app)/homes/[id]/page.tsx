@@ -1,3 +1,4 @@
+import { EntityManagement } from "@/components/entity-management";
 import Link from "next/link";
 import { homeOwnershipCopy } from "@/i18n/home-ownership";
 import { HomeSharingControl } from "@/components/home-sharing-control";
@@ -450,6 +451,13 @@ export default async function HomeDetailPage({
             {hc.circles} →
           </Link>
         </section>
+      )}
+      {isOwner && (
+        <EntityManagement
+          id={home.id}
+          name={home.title}
+          operation="delete_home"
+        />
       )}
     </div>
   );
