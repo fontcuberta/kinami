@@ -53,7 +53,7 @@ export default async function LoginPage({
         )}
 
         <div className="rounded-2xl border border-border-subtle bg-surface p-8 shadow-sm">
-          <h1 className="sr-only">{t("login.title")}</h1>
+          <h1 className="mb-3 font-display text-3xl font-semibold">{t("login.title")}</h1>
           <p className="mb-6 text-text-secondary">{t("login.intro")}</p>
           <LoginForm />
         </div>

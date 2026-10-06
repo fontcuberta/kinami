@@ -157,3 +157,20 @@ Si el proyecto ya tenía el schema inicial, ejecuta en orden en el SQL Editor:
 7. `008_demo_photos_invite_lock.sql` — fotos de las casas de ejemplo + bloqueo del código KINAMIEX
 
 Instalaciones nuevas: basta con `schema.sql` (ya incluye el bucket de avatares) y luego `002`–`008` en orden.
+
+
+## Rediseño de experiencia (octubre 2026)
+
+- `/circles`: grupos de personas, con miembros, casas y destinos visibles en tarjetas amplias.
+- `/circles/[id]`: abre por Personas, con las casas compartidas debajo de cada miembro; Casas permite buscar destinos; Mis casas permite compartir o retirar propiedades existentes.
+- `/homes`: biblioteca de casas propias. Cada casa tiene una ficha única y puede compartirse en cero, uno o varios círculos. Crear una casa no la publica automáticamente.
+- `/homes/[id]`: información, fotos, disponibilidad y gestión de los círculos donde se comparte.
+- `/explore`: búsqueda agregada entre casas de los círculos.
+
+Se conserva la paleta, los iconos y la identidad. No requiere migración: utiliza `homes.owner_id` y `home_circles`. Retirar una casa solo elimina la asociación. Las acciones comprueban propietario y pertenencia al círculo, manteniendo RLS. Una persona puede retirar una asociación anterior aunque haya salido del círculo.
+
+Validación: `npm run lint`, `npx tsc --noEmit`, `node scripts/check-home-sharing.mjs`, `npm run check:contrast` y `npm run build -- --webpack`.
+
+La revisión visual `/login/circles-review` contiene datos ficticios y solo está disponible en desarrollo (404 en producción). No modifica propiedades reales. Validar los flujos completos con una sesión autenticada antes de desplegar.
+
+El objetivo de +20% de visitas requiere comparar sesiones durante 28 días antes y después del lanzamiento; no es un resultado medido. Conviene acompañarlo de casas compartidas, visitas a fichas y solicitudes enviadas. Este cambio no instala analítica ni envía notificaciones.

@@ -2,7 +2,11 @@ import Nav from "@/components/nav";
 import { OnboardingTour } from "@/components/onboarding-tour";
 import { createClient } from "@/lib/supabase/server";
 
-export default async function AppLayout({ children }: { children: React.ReactNode }) {
+export default async function AppLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -23,11 +27,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <Nav />
       <main
         id="main-content"
-        className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] sm:px-6 sm:py-8 md:pb-8"
+        className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] sm:px-6 sm:py-8 lg:pb-8"
       >
+        <OnboardingTour enabled={showTour} />
         {children}
       </main>
-      <OnboardingTour enabled={showTour} />
     </>
   );
 }

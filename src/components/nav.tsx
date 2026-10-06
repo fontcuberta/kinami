@@ -21,7 +21,7 @@ export default async function Nav() {
         className="sticky top-0 z-40 border-b border-border-subtle bg-surface/95 backdrop-blur-md"
         style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
       >
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
           <Link
             href="/circles"
             className="flex min-h-11 min-w-11 shrink-0 items-center gap-2 font-display text-xl font-semibold text-accent-700 sm:text-2xl"
@@ -33,7 +33,7 @@ export default async function Nav() {
           <div className="flex items-center gap-1 sm:gap-2">
             <nav
               aria-label={t("nav.main")}
-              className="mr-1 hidden items-center gap-0.5 md:flex"
+              className="mr-1 hidden items-center gap-0.5 lg:flex"
             >
               <NavLinks />
             </nav>
@@ -42,8 +42,16 @@ export default async function Nav() {
             <ThemeToggle />
 
             {user && (
-              <form action="/auth/signout" method="post" className="hidden sm:block">
-                <Button type="submit" variant="ghost" className="min-h-9 px-3 text-sm">
+              <form
+                action="/auth/signout"
+                method="post"
+                className="hidden sm:block"
+              >
+                <Button
+                  type="submit"
+                  variant="ghost"
+                  className="min-h-9 px-3 text-sm"
+                >
                   {t("nav.signOut")}
                 </Button>
               </form>

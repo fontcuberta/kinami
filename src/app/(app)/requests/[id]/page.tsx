@@ -70,7 +70,9 @@ export default async function RequestDetailPage({
 
   async function signatureUrl(path: string | null | undefined) {
     if (!path) return null;
-    const { data } = await supabase.storage.from("signatures").createSignedUrl(path, 60 * 60);
+    const { data } = await supabase.storage
+      .from("signatures")
+      .createSignedUrl(path, 60 * 60);
     return data?.signedUrl ?? null;
   }
 
@@ -82,14 +84,17 @@ export default async function RequestDetailPage({
   return (
     <div className="mx-auto flex max-w-lg flex-col gap-6">
       <div>
-        <h1 className="font-display text-3xl font-semibold text-text">{request.homes?.title}</h1>
+        <h1 className="font-display text-3xl font-semibold text-text">
+          {request.homes?.title ?? t("swap.requestFallback")}
+        </h1>
         <p className="text-text-secondary">
           <time dateTime={request.start_date}>{request.start_date}</time>
           {" → "}
           <time dateTime={request.end_date}>{request.end_date}</time>
         </p>
         <p className="mt-2 flex items-center gap-2 text-sm text-text-secondary">
-          {t("swap.requestedBy", { name: guestName })} <StatusBadge status={request.status} />
+          {t("swap.requestedBy", { name: guestName })}{" "}
+          <StatusBadge status={request.status} />
         </p>
       </div>
 
@@ -100,12 +105,17 @@ export default async function RequestDetailPage({
               <form action={updateSwapStatus}>
                 <input type="hidden" name="id" value={request.id} />
                 <input type="hidden" name="status" value="accepted" />
-                <SubmitButton pendingLabel={t("swap.accepting")}>{t("swap.accept")}</SubmitButton>
+                <SubmitButton pendingLabel={t("swap.accepting")}>
+                  {t("swap.accept")}
+                </SubmitButton>
               </form>
               <form action={updateSwapStatus}>
                 <input type="hidden" name="id" value={request.id} />
                 <input type="hidden" name="status" value="declined" />
-                <SubmitButton variant="secondary" pendingLabel={t("swap.declining")}>
+                <SubmitButton
+                  variant="secondary"
+                  pendingLabel={t("swap.declining")}
+                >
                   {t("swap.decline")}
                 </SubmitButton>
               </form>
@@ -115,7 +125,10 @@ export default async function RequestDetailPage({
             <form action={updateSwapStatus}>
               <input type="hidden" name="id" value={request.id} />
               <input type="hidden" name="status" value="cancelled" />
-              <SubmitButton variant="secondary" pendingLabel={t("swap.cancelling")}>
+              <SubmitButton
+                variant="secondary"
+                pendingLabel={t("swap.cancelling")}
+              >
                 {t("swap.cancel")}
               </SubmitButton>
             </form>
@@ -139,7 +152,10 @@ export default async function RequestDetailPage({
         />
       )}
 
-      <section aria-labelledby="messages-heading" className="flex flex-col gap-3">
+      <section
+        aria-labelledby="messages-heading"
+        className="flex flex-col gap-3"
+      >
         <h2 id="messages-heading" className="text-xl font-semibold text-text">
           {t("swap.messages")}
         </h2>
@@ -147,7 +163,9 @@ export default async function RequestDetailPage({
           {(messages as unknown as Message[] | null)?.length ? (
             (messages as unknown as Message[]).map((m) => (
               <li key={m.id} className="text-text">
-                <span className="font-semibold">{m.profiles?.full_name ?? t("swap.member")}: </span>
+                <span className="font-semibold">
+                  {m.profiles?.full_name ?? t("swap.member")}:{" "}
+                </span>
                 {m.body}
               </li>
             ))

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { completeOnboarding } from "@/lib/actions";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n/client";
@@ -13,18 +13,7 @@ export function OnboardingTour({ enabled }: { enabled: boolean }) {
   const [step, setStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
-  const dialogRef = useRef<HTMLDivElement>(null);
   const open = enabled && !dismissed;
-
-  useEffect(() => {
-    if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    dialogRef.current?.focus();
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [open]);
 
   if (!open) return null;
 
@@ -44,18 +33,9 @@ export function OnboardingTour({ enabled }: { enabled: boolean }) {
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-[rgba(8,18,38,0.55)] p-4 sm:items-center"
-      role="presentation"
-    >
-      <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="onboarding-title"
-        tabIndex={-1}
-        className="w-full max-w-md rounded-[1.75rem] border border-border-subtle bg-surface p-6 shadow-[0_24px_70px_rgba(8,18,38,0.35)] outline-none sm:p-8"
-      >
+    <details className="mb-6 rounded-2xl border border-accent-100 bg-accent-50">
+      <summary className="min-h-11 cursor-pointer px-5 py-4 font-semibold text-accent-800">{t("tour.steps.welcome.title")}</summary>
+      <div className="max-w-2xl px-5 pb-5">
         <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent-700">
           {t("tour.eyebrow", { current: step + 1, total: STEP_KEYS.length })}
         </p>
@@ -71,7 +51,7 @@ export function OnboardingTour({ enabled }: { enabled: boolean }) {
             <span
               key={STEP_KEYS[index]}
               className={`h-1.5 flex-1 rounded-full ${
-                index <= step ? "bg-accent-700" : "bg-neutral-200"
+                index <= step ? "bg-accent-700" : "bg-border-subtle"
               }`}
             />
           ))}
@@ -116,6 +96,6 @@ export function OnboardingTour({ enabled }: { enabled: boolean }) {
           </div>
         </div>
       </div>
-    </div>
+    </details>
   );
 }

@@ -3,16 +3,18 @@
 import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { AMENITY_KEYS, parseHomeAmenities, type HomeAmenities } from "@/lib/home-amenities";
+import {
+  AMENITY_KEYS,
+  parseHomeAmenities,
+  type HomeAmenities,
+} from "@/lib/home-amenities";
 import { Input, TextArea } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { AmenityIcon } from "@/components/ui/amenity-icon";
 import { useI18n } from "@/i18n/client";
 import type { Home } from "@/lib/types";
 
-type HomeFormProps =
-  | { mode: "create"; circleId: string }
-  | { mode: "edit"; home: Home };
+type HomeFormProps = { mode: "create" } | { mode: "edit"; home: Home };
 
 export function HomeForm(props: HomeFormProps) {
   const { t } = useI18n();
@@ -28,7 +30,9 @@ export function HomeForm(props: HomeFormProps) {
   const [city, setCity] = useState(existing?.city ?? "");
   const [country, setCountry] = useState(existing?.country ?? "");
   const [amenities, setAmenities] = useState<HomeAmenities>(initialAmenities);
-  const [keptPhotos, setKeptPhotos] = useState<string[]>(existing?.photos ?? []);
+  const [keptPhotos, setKeptPhotos] = useState<string[]>(
+    existing?.photos ?? [],
+  );
   const [files, setFiles] = useState<FileList | null>(null);
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
@@ -70,7 +74,9 @@ export function HomeForm(props: HomeFormProps) {
             .from("home-photos")
             .upload(path, file);
           if (uploadError) throw uploadError;
-          const { data: pub } = supabase.storage.from("home-photos").getPublicUrl(path);
+          const { data: pub } = supabase.storage
+            .from("home-photos")
+            .getPublicUrl(path);
           photoUrls.push(pub.publicUrl);
         }
       }
@@ -95,13 +101,8 @@ export function HomeForm(props: HomeFormProps) {
         });
         if (insertError) throw insertError;
 
-        const { error: shareError } = await supabase
-          .from("home_circles")
-          .insert({ home_id: homeId, circle_id: props.circleId });
-        if (shareError) throw shareError;
-
         setStatusMessage(t("home.savedRedirect"));
-        router.push(`/homes/${homeId}`);
+        router.push(`/homes/${homeId}#sharing`);
       } else {
         setStatusMessage(t("home.savingChanges"));
         const { error: updateError } = await supabase
@@ -120,22 +121,31 @@ export function HomeForm(props: HomeFormProps) {
       setStatusMessage("");
       const message = err instanceof Error ? err.message : t("actions.generic");
       setError(
-        message.toLowerCase().includes("amenities") || message.toLowerCase().includes("house_manual")
+        message.toLowerCase().includes("amenities") ||
+          message.toLowerCase().includes("house_manual")
           ? t("home.migrationMissing")
-          : message
+          : message,
       );
       setLoading(false);
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-8" noValidate>
-      <section aria-labelledby="home-basics-heading" className="flex flex-col gap-4">
+    <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-8">
+      <section
+        aria-labelledby="home-basics-heading"
+        className="flex flex-col gap-4"
+      >
         <div>
-          <h2 id="home-basics-heading" className="font-display text-xl font-semibold text-text">
+          <h2
+            id="home-basics-heading"
+            className="font-display text-xl font-semibold text-text"
+          >
             {t("home.basics")}
           </h2>
-          <p className="mt-1 text-sm text-text-secondary">{t("home.basicsHint")}</p>
+          <p className="mt-1 text-sm text-text-secondary">
+            {t("home.basicsHint")}
+          </p>
         </div>
         <Input
           label={t("home.titleLabel")}
@@ -173,9 +183,15 @@ export function HomeForm(props: HomeFormProps) {
         />
       </section>
 
-      <section aria-labelledby="home-amenities-heading" className="flex flex-col gap-4">
+      <section
+        aria-labelledby="home-amenities-heading"
+        className="flex flex-col gap-4"
+      >
         <div>
-          <h2 id="home-amenities-heading" className="font-display text-xl font-semibold text-text">
+          <h2
+            id="home-amenities-heading"
+            className="font-display text-xl font-semibold text-text"
+          >
             {t("home.equipment")}
           </h2>
           <p className="mt-1 text-sm text-text-secondary">
@@ -207,7 +223,9 @@ export function HomeForm(props: HomeFormProps) {
                     <AmenityIcon amenity={key} className="h-6 w-6" />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block font-semibold text-text">{label}</span>
+                    <span className="block font-semibold text-text">
+                      {label}
+                    </span>
                     <span className="mt-0.5 block text-sm leading-relaxed text-text-secondary">
                       {hint}
                     </span>
@@ -236,9 +254,15 @@ export function HomeForm(props: HomeFormProps) {
         </ul>
       </section>
 
-      <section aria-labelledby="home-manual-heading" className="flex flex-col gap-4">
+      <section
+        aria-labelledby="home-manual-heading"
+        className="flex flex-col gap-4"
+      >
         <div>
-          <h2 id="home-manual-heading" className="font-display text-xl font-semibold text-text">
+          <h2
+            id="home-manual-heading"
+            className="font-display text-xl font-semibold text-text"
+          >
             {t("home.manualTitle")}
           </h2>
           <p className="mt-1 text-sm text-text-secondary">
@@ -255,13 +279,21 @@ export function HomeForm(props: HomeFormProps) {
         />
       </section>
 
-      <section aria-labelledby="home-photos-heading" className="flex flex-col gap-3">
+      <section
+        aria-labelledby="home-photos-heading"
+        className="flex flex-col gap-3"
+      >
         <div>
-          <h2 id="home-photos-heading" className="font-display text-xl font-semibold text-text">
+          <h2
+            id="home-photos-heading"
+            className="font-display text-xl font-semibold text-text"
+          >
             {t("home.photosTitle")}
           </h2>
           <p className="mt-1 text-sm text-text-secondary">
-            {props.mode === "edit" ? t("home.photosHintEdit") : t("home.photosHintCreate")}
+            {props.mode === "edit"
+              ? t("home.photosHintEdit")
+              : t("home.photosHintCreate")}
           </p>
         </div>
 
@@ -278,7 +310,11 @@ export function HomeForm(props: HomeFormProps) {
                 <button
                   type="button"
                   className="absolute right-2 top-2 rounded-md bg-surface/90 px-2 py-1 text-xs font-semibold text-text"
-                  onClick={() => setKeptPhotos((photos) => photos.filter((photo) => photo !== url))}
+                  onClick={() =>
+                    setKeptPhotos((photos) =>
+                      photos.filter((photo) => photo !== url),
+                    )
+                  }
                 >
                   {t("home.removePhoto")}
                 </button>
@@ -289,6 +325,7 @@ export function HomeForm(props: HomeFormProps) {
 
         <input
           id={photosId}
+          aria-label={t("home.photosTitle")}
           type="file"
           accept="image/*"
           multiple
@@ -297,7 +334,11 @@ export function HomeForm(props: HomeFormProps) {
         />
       </section>
 
-      <div role="status" aria-live="polite" className="text-sm text-text-secondary">
+      <div
+        role="status"
+        aria-live="polite"
+        className="text-sm text-text-secondary"
+      >
         {statusMessage}
       </div>
       <div aria-live="polite">
@@ -309,7 +350,11 @@ export function HomeForm(props: HomeFormProps) {
       </div>
 
       <Button type="submit" disabled={loading} aria-busy={loading}>
-        {loading ? t("common.saving") : props.mode === "edit" ? t("home.saveChanges") : t("home.saveHome")}
+        {loading
+          ? t("common.saving")
+          : props.mode === "edit"
+            ? t("home.saveChanges")
+            : t("home.saveHome")}
       </Button>
     </form>
   );

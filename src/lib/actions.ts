@@ -7,10 +7,12 @@ import { revalidatePath } from "next/cache";
 import { loginAuthErrorMessage } from "@/lib/auth-errors";
 import { authRedirectOriginFromHeaders } from "@/lib/https";
 import { getTranslator } from "@/i18n/server";
+import { setHomeCircleSharing } from "@/lib/home-sharing-actions";
 import { createClient } from "@/lib/supabase/server";
 
 export type ActionState = { error: string } | null;
-export type MagicLinkState = { error: string; email: string } | { sent: true; email: string } | null;
+export type MagicLinkState =
+  { error: string; email: string } | { sent: true; email: string } | null;
 
 async function requireUser() {
   const supabase = await createClient();
@@ -26,30 +28,39 @@ async function requireUser() {
 async function friendlyError(message: string): Promise<string> {
   const { t } = await getTranslator();
   const lower = message.toLowerCase();
-  if (lower.includes("delete_own_account")) return t("actions.missingDeleteRpc");
+  if (lower.includes("delete_own_account"))
+    return t("actions.missingDeleteRpc");
   if (lower.includes("avatars") || lower.includes("bucket not found")) {
     return t("actions.missingAvatars");
   }
   if (lower.includes("signatures")) {
     return t("actions.missingSignatures");
   }
-  if (lower.includes("swap_agreements") || lower.includes("owner_signed_name")) {
+  if (
+    lower.includes("swap_agreements") ||
+    lower.includes("owner_signed_name")
+  ) {
     return t("actions.missingAgreements");
   }
-  if (lower.includes("invite") || lower.includes("invitación") || lower.includes("invitacion")) {
+  if (
+    lower.includes("invite") ||
+    lower.includes("invitación") ||
+    lower.includes("invitacion")
+  ) {
     return t("actions.invite");
   }
   if (lower.includes("ejemplo") || lower.includes("example")) {
     return t("circles.inviteDisabledTooltip");
   }
   if (lower.includes("check constraint")) return t("actions.dateOrder");
-  if (lower.includes("row-level security") || lower.includes("policy")) return t("actions.rls");
+  if (lower.includes("row-level security") || lower.includes("policy"))
+    return t("actions.rls");
   return t("actions.generic");
 }
 
 export async function requestMagicLink(
   _prevState: MagicLinkState,
-  formData: FormData
+  formData: FormData,
 ): Promise<MagicLinkState> {
   const email = String(formData.get("email") ?? "").trim();
   const { t } = await getTranslator();
@@ -82,7 +93,10 @@ export async function requestMagicLink(
   });
 
   if (error) {
-    return { error: await loginAuthErrorMessage(error.message, redirectTo), email };
+    return {
+      error: await loginAuthErrorMessage(error.message, redirectTo),
+      email,
+    };
   }
 
   return { sent: true, email };
@@ -90,7 +104,7 @@ export async function requestMagicLink(
 
 export async function createCircle(
   _prevState: ActionState,
-  formData: FormData
+  formData: FormData,
 ): Promise<ActionState> {
   const { supabase, user } = await requireUser();
   const name = String(formData.get("name") ?? "").trim();
@@ -115,7 +129,7 @@ export async function createCircle(
 
 export async function joinCircle(
   _prevState: ActionState,
-  formData: FormData
+  formData: FormData,
 ): Promise<ActionState> {
   const { supabase } = await requireUser();
   const code = String(formData.get("code") ?? "").trim();
@@ -221,22 +235,14 @@ export async function deleteAvailability(formData: FormData) {
 }
 
 export async function shareHomeWithCircle(formData: FormData) {
-  const { supabase } = await requireUser();
-  const homeId = String(formData.get("home_id"));
-  const circleId = String(formData.get("circle_id"));
-
-  const { error } = await supabase
-    .from("home_circles")
-    .insert({ home_id: homeId, circle_id: circleId });
-
-  if (error) throw new Error(await friendlyError(error.message));
-
-  revalidatePath(`/homes/${homeId}`);
+  formData.set("operation", "share");
+  const result = await setHomeCircleSharing(null, formData);
+  if (result?.error) throw new Error(result.error);
 }
 
 export async function createSwapRequest(
   _prevState: ActionState,
-  formData: FormData
+  formData: FormData,
 ): Promise<ActionState> {
   const { supabase, user } = await requireUser();
   const homeId = String(formData.get("home_id"));
@@ -288,7 +294,7 @@ export async function updateSwapStatus(formData: FormData) {
 
 export async function deleteAccount(
   _prevState: ActionState,
-  formData: FormData
+  formData: FormData,
 ): Promise<ActionState> {
   const { supabase } = await requireUser();
   const confirmation = String(formData.get("confirmation") ?? "");
@@ -296,7 +302,9 @@ export async function deleteAccount(
   const { t } = await getTranslator();
   const allowed = ["DELETE", "BORRAR", "ESBORRAR"];
   if (!allowed.includes(confirmation.trim().toUpperCase())) {
-    return { error: t("actions.deleteConfirm", { word: t("account.deleteWord") }) };
+    return {
+      error: t("actions.deleteConfirm", { word: t("account.deleteWord") }),
+    };
   }
 
   const { error } = await supabase.rpc("delete_own_account");
@@ -370,13 +378,19 @@ export async function signSwapContract(formData: FormData) {
     .from("swap_requests")
     .select("requester_id, homes(owner_id)")
     .eq("id", swapRequestId)
-    .maybeSingle<{ requester_id: string; homes: { owner_id: string } | null }>();
+    .maybeSingle<{
+      requester_id: string;
+      homes: { owner_id: string } | null;
+    }>();
 
   if (!request) throw new Error(t("actions.notFound"));
 
   const isOwner = request.homes?.owner_id === user.id;
   const isRequester = request.requester_id === user.id;
-  if ((role === "owner" && !isOwner) || (role === "requester" && !isRequester)) {
+  if (
+    (role === "owner" && !isOwner) ||
+    (role === "requester" && !isRequester)
+  ) {
     throw new Error(t("actions.noPermission"));
   }
 

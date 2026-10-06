@@ -20,7 +20,11 @@ export async function generateMetadata({
     .eq("id", id)
     .maybeSingle<{ title: string }>();
 
-  return { title: home?.title ? t("home.editMeta", { title: home.title }) : t("home.editTitle") };
+  return {
+    title: home?.title
+      ? t("home.editMeta", { title: home.title })
+      : t("home.editTitle"),
+  };
 }
 
 export default async function EditHomePage({
@@ -45,15 +49,23 @@ export default async function EditHomePage({
   if (!user || home.owner_id !== user.id) redirect(`/homes/${id}`);
 
   return (
-    <div className="mx-auto max-w-lg">
-      <nav aria-label={t("common.breadcrumb")} className="text-sm text-text-secondary">
-        <Link href={`/homes/${home.id}`} className="underline-offset-2 hover:text-accent-700 hover:underline">
+    <div className="mx-auto max-w-3xl">
+      <nav
+        aria-label={t("common.breadcrumb")}
+        className="text-sm text-text-secondary"
+      >
+        <Link
+          href={`/homes/${home.id}`}
+          className="underline-offset-2 hover:text-accent-700 hover:underline"
+        >
           {home.title}
         </Link>
         {" / "}
         {t("home.breadcrumbEdit")}
       </nav>
-      <h1 className="mt-2 font-display text-3xl font-semibold text-text">{t("home.editTitle")}</h1>
+      <h1 className="mt-2 font-display text-3xl font-semibold text-text">
+        {t("home.editTitle")}
+      </h1>
       <p className="mt-1 text-text-secondary">{t("home.editIntro")}</p>
       <HomeForm mode="edit" home={home} />
     </div>

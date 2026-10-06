@@ -1,27 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { SunIcon, MoonIcon } from "@/components/ui/icons";
 import { applyTheme, readDocumentTheme, type Theme } from "@/lib/theme";
 import { useI18n } from "@/i18n/client";
 
-/**
- * Interruptor de tema claro/oscuro. El script inline en layout.tsx fija
- * data-theme antes de pintar; aquí sincronizamos el icono y gestionamos el clic.
- */
+function subscribe(onChange: () => void) {
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  return () => observer.disconnect();
+}
+const serverTheme = (): Theme | null => null;
+
 export function ThemeToggle() {
   const { t } = useI18n();
-  const [theme, setTheme] = useState<Theme>("light");
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setTheme(readDocumentTheme());
-    setMounted(true);
-  }, []);
+  const theme = useSyncExternalStore(subscribe, readDocumentTheme, serverTheme);
+  const mounted = theme !== null;
 
   function toggle() {
     const next: Theme = theme === "dark" ? "light" : "dark";
-    setTheme(next);
     applyTheme(next);
   }
 
@@ -38,7 +35,7 @@ export function ThemeToggle() {
       aria-label={label}
       aria-pressed={mounted ? theme === "dark" : undefined}
       title={label}
-      className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg text-text-secondary transition-colors hover:bg-neutral-100 hover:text-text"
+      className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-text-secondary transition-colors hover:bg-neutral-100 hover:text-text"
     >
       {mounted && theme === "dark" ? (
         <SunIcon className="h-5 w-5" />

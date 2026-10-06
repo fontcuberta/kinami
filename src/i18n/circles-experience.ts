@@ -1,0 +1,182 @@
+import type { Locale } from "./config";
+const es = {
+  nav: "Círculos",
+  title: "Tus círculos",
+  intro: "Tu gente, sus casas y los lugares que os esperan.",
+  explain:
+    "Un círculo es un grupo privado de personas que comparten sus casas entre sí.",
+  create: "Crear un círculo",
+  join: "Tengo un código",
+  enter: "Entrar al círculo",
+  close: "Cerrar",
+  private: "Círculo privado",
+  people: "Personas",
+  homes: "Casas",
+  info: "Información",
+  homeOne: "casa",
+  homeMany: "casas",
+  personOne: "persona",
+  personMany: "personas",
+  destinations: "Destinos",
+  yourRole: "Tu papel",
+  admin: "Administrador",
+  member: "Miembro",
+  noHomes: "El primer destino está por llegar",
+  noHomesBody: "Comparte una casa para empezar a hacer planes juntos.",
+  emptyTitle: "Empieza por tu gente.",
+  emptyBody:
+    "Si alguien te ha invitado, introduce su código. Si aún no tenéis un grupo, crea vuestro primer círculo.",
+  example: "¿Quieres ver cómo funciona?",
+  exampleBody:
+    "Visita el círculo de ejemplo antes de crear el tuyo. Sus casas son de demostración.",
+  exampleCta: "Ver círculo de ejemplo",
+  invite: "Invitar a alguien",
+  addHome: "Compartir mi casa",
+  homesIntro: "Encuentra un lugar y consulta las fechas con su anfitrión.",
+  peopleIntro:
+    "Las personas de tu círculo y las casas que comparten para intercambiar.",
+  infoIntro: "Cómo funciona este espacio y quién puede acceder.",
+  about: "Sobre este círculo",
+  privacyBody:
+    "Solo los miembros del círculo pueden descubrir las casas que se comparten aquí. Comparte el código de invitación solo con personas en las que confíes.",
+  inviteBody:
+    "Envía este código a alguien de confianza. Podrá usarlo al entrar en Kinami.",
+  inviteHelp: "El código da acceso al círculo. Compártelo de forma privada.",
+  code: "Código de invitación",
+  inviteCopyError:
+    "No se ha podido copiar. Selecciona el código y cópialo manualmente.",
+  sampleNote:
+    "Estás en un círculo de ejemplo. Las casas son de demostración y las invitaciones están desactivadas.",
+  browseAll: "Explorar casas de todos tus círculos",
+  back: "Todos mis círculos",
+  hosting: "Comparte un lugar con tu gente",
+  hostingBody: "Añade tu casa y las fechas en las que puedes recibir visitas.",
+  leaveArea: "Tu pertenencia al círculo",
+  host: "Anfitrión",
+  yourHome: "Tu casa",
+  noSharedHomes: "Todavía no comparte ninguna casa en este círculo.",
+  peopleEmpty: "No hay perfiles disponibles en este momento.",
+  noneDescription:
+    "Un espacio para compartir casas y hacer planes con personas de confianza.",
+};
+type Copy = { [K in keyof typeof es]: string };
+const en: Copy = {
+  nav: "Circles",
+  title: "Your circles",
+  intro: "Your people, their homes, and the places ahead.",
+  explain:
+    "A circle is a private group of people who share their homes with one another.",
+  create: "Create a circle",
+  join: "I have a code",
+  enter: "Open circle",
+  close: "Close",
+  private: "Private circle",
+  people: "People",
+  homes: "Homes",
+  info: "About",
+  homeOne: "home",
+  homeMany: "homes",
+  personOne: "person",
+  personMany: "people",
+  destinations: "Destinations",
+  yourRole: "Your role",
+  admin: "Administrator",
+  member: "Member",
+  noHomes: "Your first destination is still to come",
+  noHomesBody: "Share a home to start making plans together.",
+  emptyTitle: "Start with your people.",
+  emptyBody:
+    "If someone invited you, enter their code. If you don’t have a group yet, create your first circle.",
+  example: "Want to see how it works?",
+  exampleBody:
+    "Look around the example circle before starting your own. Its homes are for demonstration.",
+  exampleCta: "Explore the example circle",
+  invite: "Invite someone",
+  addHome: "Share my home",
+  homesIntro: "Find a place and check the dates with its host.",
+  peopleIntro:
+    "The people in your circle and the homes they share for swapping.",
+  infoIntro: "How this space works and who can access it.",
+  about: "About this circle",
+  privacyBody:
+    "Only circle members can discover the homes shared here. Share your invite code only with people you trust.",
+  inviteBody:
+    "Send this code to someone you trust. They can use it after signing in to Kinami.",
+  inviteHelp: "This code grants access to the circle. Share it privately.",
+  code: "Invite code",
+  inviteCopyError: "Couldn’t copy. Select the code and copy it manually.",
+  sampleNote:
+    "You’re in an example circle. The homes are for demonstration and invitations are disabled.",
+  browseAll: "Explore homes across all your circles",
+  back: "All my circles",
+  hosting: "Share a place with your people",
+  hostingBody: "Add your home and the dates when you can host.",
+  leaveArea: "Your circle membership",
+  host: "Host",
+  yourHome: "Your home",
+  noSharedHomes: "No homes shared in this circle yet.",
+  peopleEmpty: "No profiles are available right now.",
+  noneDescription:
+    "A place to share homes and make plans with people you trust.",
+};
+const ca: Copy = {
+  nav: "Cercles",
+  title: "Els teus cercles",
+  intro: "La teva gent, les seves cases i els llocs que us esperen.",
+  explain:
+    "Un cercle és un grup privat de persones que comparteixen les seves cases entre elles.",
+  create: "Crea un cercle",
+  join: "Tinc un codi",
+  enter: "Entra al cercle",
+  close: "Tanca",
+  private: "Cercle privat",
+  people: "Persones",
+  homes: "Cases",
+  info: "Informació",
+  homeOne: "casa",
+  homeMany: "cases",
+  personOne: "persona",
+  personMany: "persones",
+  destinations: "Destinacions",
+  yourRole: "El teu paper",
+  admin: "Administrador",
+  member: "Membre",
+  noHomes: "La primera destinació encara ha d’arribar",
+  noHomesBody: "Comparteix una casa per començar a fer plans junts.",
+  emptyTitle: "Comença per la teva gent.",
+  emptyBody:
+    "Si algú t’ha convidat, introdueix el seu codi. Si encara no teniu un grup, crea el vostre primer cercle.",
+  example: "Vols veure com funciona?",
+  exampleBody:
+    "Visita el cercle d’exemple abans de crear el teu. Les seves cases són de demostració.",
+  exampleCta: "Veure el cercle d’exemple",
+  invite: "Convida algú",
+  addHome: "Comparteix casa meva",
+  homesIntro: "Troba un lloc i consulta les dates amb l’amfitrió.",
+  peopleIntro:
+    "Les persones del teu cercle i les cases que comparteixen per intercanviar.",
+  infoIntro: "Com funciona aquest espai i qui hi pot accedir.",
+  about: "Sobre aquest cercle",
+  privacyBody:
+    "Només els membres del cercle poden descobrir les cases que s’hi comparteixen. Comparteix el codi d’invitació només amb persones de confiança.",
+  inviteBody:
+    "Envia aquest codi a algú de confiança. El podrà fer servir després d’entrar a Kinami.",
+  inviteHelp: "El codi dona accés al cercle. Comparteix-lo de manera privada.",
+  code: "Codi d’invitació",
+  inviteCopyError:
+    "No s’ha pogut copiar. Selecciona el codi i copia’l manualment.",
+  sampleNote:
+    "Ets en un cercle d’exemple. Les cases són de demostració i les invitacions estan desactivades.",
+  browseAll: "Explora les cases de tots els teus cercles",
+  back: "Tots els meus cercles",
+  hosting: "Comparteix un lloc amb la teva gent",
+  hostingBody: "Afegeix casa teva i les dates en què pots rebre visites.",
+  leaveArea: "La teva pertinença al cercle",
+  host: "Amfitrió",
+  yourHome: "Casa teva",
+  noSharedHomes: "Encara no comparteix cap casa en aquest cercle.",
+  peopleEmpty: "No hi ha perfils disponibles en aquest moment.",
+  noneDescription:
+    "Un espai per compartir cases i fer plans amb persones de confiança.",
+};
+export const circleCopy = (locale: Locale): Copy => ({ es, en, ca })[locale];

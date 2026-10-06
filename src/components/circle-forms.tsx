@@ -53,7 +53,11 @@ export function CreateCircleForm() {
         )}
       </div>
 
-      <SubmitButton variant="secondary" className="w-full rounded-xl" pendingLabel={t("circles.creating")}>
+      <SubmitButton
+        variant="secondary"
+        className="w-full rounded-xl"
+        pendingLabel={t("circles.creating")}
+      >
         <PlusIcon className="h-4 w-4" />
         {t("circles.create")}
       </SubmitButton>
@@ -68,37 +72,39 @@ export function JoinCircleForm() {
   return (
     <form action={formAction} className="flex flex-col gap-4">
       <div className="flex items-start gap-3">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-50 text-accent-700">
           <TicketIcon className="h-5 w-5" />
         </div>
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-blue-100">
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-text-secondary">
             {t("circles.joinEyebrow")}
           </p>
-          <h2 className="mt-0.5 font-display text-xl font-semibold text-white">
+          <h2 className="mt-0.5 font-display text-xl font-semibold text-text">
             {t("circles.joinTitle")}
           </h2>
-          <p className="mt-1 text-sm leading-relaxed text-blue-100">{t("circles.joinBody")}</p>
+          <p className="mt-1 text-sm leading-relaxed text-text-secondary">
+            {t("circles.joinBody")}
+          </p>
         </div>
       </div>
 
-      <div className="[&_label]:text-white [&_p]:text-blue-100">
+      <div className="[&_label]:text-text [&_p]:text-text-secondary">
         <Input
           label={t("circles.code")}
           id="join-circle-code"
           name="code"
           required
           placeholder="4F2A91C"
-          className="border-white/30 bg-white/10 font-mono uppercase tracking-[0.18em] text-white placeholder:text-blue-200 focus:bg-white/15"
+          className="border-border-strong bg-surface font-mono uppercase tracking-[0.18em] text-text placeholder:text-text-secondary"
           autoComplete="off"
           error={state?.error ?? undefined}
         />
       </div>
 
       <SubmitButton
-        variant="secondary"
+        variant="primary"
         pendingLabel={t("circles.joining")}
-        className="w-full rounded-xl border-white bg-white text-[#1e4483] hover:bg-blue-50"
+        className="w-full rounded-xl"
       >
         {t("circles.join")}
       </SubmitButton>
